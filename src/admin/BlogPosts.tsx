@@ -12,6 +12,7 @@ import {
   Link,
   Calendar,
   FileText,
+  Search,
 } from 'lucide-react';
 import RichEditor from './RichEditor';
 import { ImagePickerField } from './ImagePicker';
@@ -26,6 +27,7 @@ type Post = {
   published_at: string | null;
   post_date: string | null;
   created_at: string;
+  seo_description: string;
 };
 
 type View = 'list' | 'edit';
@@ -210,6 +212,27 @@ function PostEditor({
             </div>
           </SidebarSection>
 
+          {/* SEO / Social */}
+          <SidebarSection icon={Search} title="SEO &amp; Socials">
+            <div>
+              <label className="block text-[11px] font-medium text-gray-400 mb-1.5">
+                Beschrijving
+              </label>
+              <textarea
+                value={(editing as Partial<Post> & { seo_description?: string }).seo_description ?? ''}
+                onChange={(e) =>
+                  setEditing((ed) => ({ ...ed, seo_description: e.target.value }))
+                }
+                rows={3}
+                placeholder="Korte beschrijving voor zoekmachines en social media…"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-900 transition bg-gray-50 focus:bg-white resize-none"
+              />
+              <p className="text-[10px] text-gray-400 mt-1.5 leading-relaxed">
+                Leeg = eerste tekst van het bericht wordt gebruikt
+              </p>
+            </div>
+          </SidebarSection>
+
           {/* Info card */}
           {editing.id && (
             <SidebarSection icon={FileText} title="Info">
@@ -259,7 +282,7 @@ export default function BlogPosts() {
   }
 
   function openNew() {
-    setEditing({ title: '', slug: '', content: '', cover_image: '', published: false, post_date: null });
+    setEditing({ title: '', slug: '', content: '', cover_image: '', seo_description: '', published: false, post_date: null });
     setView('edit');
   }
 
@@ -285,6 +308,7 @@ export default function BlogPosts() {
       slug: editing.slug || slugify(editing.title ?? ''),
       content: editing.content ?? '',
       cover_image: editing.cover_image ?? '',
+      seo_description: (editing as Partial<Post> & { seo_description?: string }).seo_description ?? '',
       published: publish !== undefined ? publish : editing.published ?? false,
       published_at:
         publish && !editing.published_at ? new Date().toISOString() : editing.published_at ?? null,
