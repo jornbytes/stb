@@ -4,12 +4,16 @@ import App from './App.tsx';
 import AdminApp from './admin/AdminApp.tsx';
 import PageView from './PageView.tsx';
 import BlogPostPage from './BlogPostPage.tsx';
+import NewsPage from './NewsPage.tsx';
 import './index.css';
 
 const path = window.location.pathname;
 
 function Root() {
   if (path.startsWith('/admin')) return <AdminApp />;
+
+  // News overview page
+  if (path === '/nieuws' || path === '/nieuws/') return <NewsPage />;
 
   // Blog post detail page
   const nieuzsMatch = path.match(/^\/nieuws\/(.+?)\/?$/);

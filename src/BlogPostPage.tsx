@@ -255,15 +255,6 @@ export default function BlogPostPage({ slug }: { slug: string }) {
         <NavBar />
 
         <div className="relative z-10 h-full flex flex-col items-center justify-end text-center px-6 pb-14">
-          {/* Breadcrumb */}
-          <div className="inline-flex items-center gap-2 mb-5">
-            <a href="/" className="text-white/40 hover:text-white/70 text-xs font-medium tracking-widest uppercase transition">Home</a>
-            <span className="text-white/20 text-xs">/</span>
-            <a href="/#nieuws" className="text-white/40 hover:text-white/70 text-xs font-medium tracking-widest uppercase transition">Nieuws</a>
-            <span className="text-white/20 text-xs">/</span>
-            <span className="text-scout-red text-xs font-semibold tracking-widest uppercase truncate max-w-[200px]">{post.title}</span>
-          </div>
-
           {/* Meta */}
           <div className="flex items-center gap-4 text-white/50 text-xs mb-4">
             <span className="flex items-center gap-1.5">
@@ -314,7 +305,7 @@ export default function BlogPostPage({ slug }: { slug: string }) {
 
         {/* Back link */}
         <div className="mt-12 pt-8 border-t border-gray-100">
-          <a href="/#nieuws" className="inline-flex items-center gap-2 text-sm font-medium text-forest-700 hover:text-forest-900 transition group">
+          <a href="/nieuws/" className="inline-flex items-center gap-2 text-sm font-medium text-forest-700 hover:text-forest-900 transition group">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
             Terug naar nieuws
           </a>
