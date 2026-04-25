@@ -271,15 +271,6 @@ export default function PageView({ slug }: { slug: string }) {
         {/* Content */}
         <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-6 pt-32 pb-20">
 
-          {/* Red pill label */}
-          <div
-            className="inline-flex items-center gap-2 bg-scout-red/15 border border-scout-red/30 text-scout-red font-semibold text-[11px] tracking-[0.2em] uppercase px-4 py-1.5 rounded-full mb-7"
-            style={{ animation: 'fadeSlideUp 0.5s ease both' }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-scout-red inline-block" />
-            Scouting Titus Brandsma
-          </div>
-
           {/* Title */}
           <h1
             className="font-display font-bold text-white uppercase leading-none mb-6"
@@ -299,12 +290,6 @@ export default function PageView({ slug }: { slug: string }) {
             </p>
           )}
 
-          {/* Divider */}
-          <div className="flex items-center gap-3 mt-10" style={{ animation: 'fadeSlideUp 0.6s 0.3s ease both' }}>
-            <div className="h-px w-12 bg-gradient-to-r from-transparent to-scout-red/70" />
-            <div className="w-2 h-2 rounded-full bg-scout-red shadow-lg shadow-scout-red/50" />
-            <div className="h-px w-12 bg-gradient-to-l from-transparent to-scout-red/70" />
-          </div>
         </div>
 
         {/* Bottom wave */}
