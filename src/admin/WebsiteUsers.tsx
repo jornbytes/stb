@@ -51,32 +51,28 @@ function CreateUserModal({ onClose, onCreated }: { onClose: () => void; onCreate
     setLoading(true);
     setError(null);
 
-    // Create auth user via admin API (service role would be needed for this)
-    // For now, we create the user via normal signUp and add to website_users
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: email.trim(),
-      password: password.trim(),
-      options: { data: { display_name: displayName.trim() } },
-    });
+    const { data: { session } } = await supabase.auth.getSession();
+    const res = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-website-user`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+          'Apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password: password.trim(),
+          display_name: displayName.trim(),
+          role,
+        }),
+      }
+    );
 
-    if (authError) {
-      setError(authError.message);
-      setLoading(false);
-      return;
-    }
-
-    const authUserId = authData.user?.id ?? null;
-
-    const { error: dbError } = await supabase.from('website_users').insert({
-      auth_user_id: authUserId,
-      email: email.trim(),
-      display_name: displayName.trim(),
-      role,
-      must_change_password: true,
-    });
-
-    if (dbError) {
-      setError(dbError.message);
+    if (!res.ok) {
+      const body = await res.json();
+      setError(body.error ?? 'Onbekende fout');
       setLoading(false);
       return;
     }
