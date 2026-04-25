@@ -127,7 +127,14 @@ function NavBar() {
   );
 }
 
+type FooterLink = { id: number; label: string; href: string; link_type: string };
+
 function Footer() {
+  const [footerLinks, setFooterLinks] = useState<FooterLink[]>([]);
+  useEffect(() => {
+    supabase.from('footer_links').select('id, label, href, link_type').order('position')
+      .then(({ data }) => setFooterLinks(data ?? []));
+  }, []);
   return (
     <footer className="bg-forest-950">
       <div className="max-w-7xl mx-auto px-6 py-10">
@@ -140,8 +147,11 @@ function Footer() {
             </div>
           </div>
           <div className="flex items-center gap-6 flex-wrap justify-center">
-            {['Privacybeleid', 'Sociale veiligheid', 'Bestuur'].map((l) => (
-              <a key={l} href="#" className="text-white/35 hover:text-white/70 text-xs tracking-wide transition-colors">{l}</a>
+            {footerLinks.map((l) => (
+              <a key={l.id} href={l.href || '#'}
+                target={l.link_type === 'external' && l.href.startsWith('http') ? '_blank' : undefined}
+                rel={l.link_type === 'external' && l.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                className="text-white/35 hover:text-white/70 text-xs tracking-wide transition-colors">{l.label}</a>
             ))}
           </div>
           <p className="text-white/20 text-xs">© {new Date().getFullYear()} Alle rechten voorbehouden</p>

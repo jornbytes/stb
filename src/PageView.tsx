@@ -99,7 +99,14 @@ function NavBar() {
 
 // ─── Shared Footer ────────────────────────────────────────────────────────────
 
+type FooterLink = { id: number; label: string; href: string; link_type: string };
+
 function Footer() {
+  const [footerLinks, setFooterLinks] = useState<FooterLink[]>([]);
+  useEffect(() => {
+    supabase.from('footer_links').select('id, label, href, link_type').order('position')
+      .then(({ data }) => setFooterLinks(data ?? []));
+  }, []);
   return (
     <footer className="bg-forest-950">
       <div className="max-w-7xl mx-auto px-6 py-10">
@@ -112,8 +119,11 @@ function Footer() {
             </div>
           </div>
           <div className="flex items-center gap-6 flex-wrap justify-center">
-            {['Privacybeleid', 'Sociale veiligheid', 'Bestuur'].map((l) => (
-              <a key={l} href="#" className="text-white/35 hover:text-white/70 text-xs tracking-wide transition-colors">{l}</a>
+            {footerLinks.map((l) => (
+              <a key={l.id} href={l.href || '#'}
+                target={l.link_type === 'external' && l.href.startsWith('http') ? '_blank' : undefined}
+                rel={l.link_type === 'external' && l.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                className="text-white/35 hover:text-white/70 text-xs tracking-wide transition-colors">{l.label}</a>
             ))}
           </div>
           <p className="text-white/20 text-xs">© {new Date().getFullYear()} Alle rechten voorbehouden</p>
@@ -220,80 +230,87 @@ export default function PageView({ slug }: { slug: string }) {
 
       <NavBar />
 
-      {/* ── Adventure Hero ───────────────────────────────────────────────────── */}
-      <div className="relative bg-forest-950 overflow-hidden flex flex-col" style={{ height: '320px' }}>
+      {/* ── Hero ─────────────────────────────────────────────────────────────── */}
+      <div className="relative bg-forest-950 overflow-hidden" style={{ minHeight: '480px', display: 'flex', flexDirection: 'column' }}>
 
-        {/* Background image with slight zoom */}
+        {/* Background */}
         {page.hero_image ? (
           <div
-            className="absolute inset-0 bg-cover bg-center scale-105"
+            className="absolute inset-0 bg-cover bg-center"
             style={{
               backgroundImage: `url(${page.hero_image})`,
-              animation: 'heroZoom 14s ease-out forwards',
+              animation: 'heroZoom 16s ease-out forwards',
+              transform: 'scale(1.06)',
             }}
           />
         ) : (
-          /* Textured dark background when no image */
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(46,101,55,0.35),transparent)]" />
+          <>
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_60%_-10%,rgba(46,101,55,0.45),transparent)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_20%_80%,rgba(180,30,30,0.12),transparent)]" />
+          </>
         )}
 
-        {/* Dark overlay — heavier at bottom for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-forest-950/55 via-forest-950/50 to-forest-950/95" />
+        {/* Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-b from-forest-950/60 via-forest-950/45 to-forest-950" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_50%,rgba(7,26,11,0.6)_100%)]" />
 
-        {/* Subtle side vignette */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(7,26,11,0.55)_100%)]" />
-
-        {/* Diagonal accent stripe */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -left-24 top-0 bottom-0 w-1.5 bg-scout-red/30 rotate-[12deg] origin-top-left" />
-          <div className="absolute -left-16 top-0 bottom-0 w-px bg-white/8 rotate-[12deg] origin-top-left" />
+        {/* Decorative pine silhouettes bottom */}
+        <div className="absolute bottom-0 left-0 right-0 pointer-events-none overflow-hidden opacity-[0.07]">
+          <svg viewBox="0 0 1440 120" className="w-full" preserveAspectRatio="xMidYMax slice">
+            {[0,130,260,390,520,650,780,910,1040,1170,1300].map((x, i) => (
+              <polygon key={i} points={`${x},120 ${x+45},60 ${x+25},72 ${x+45},30 ${x+65},72 ${x+85},60 ${x+90},120`} fill="white" />
+            ))}
+          </svg>
         </div>
 
-        {/* Grain texture overlay */}
-        <div
-          className="absolute inset-0 opacity-[0.04] pointer-events-none"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-            backgroundSize: '200px 200px',
-          }}
+        {/* Grain */}
+        <div className="absolute inset-0 opacity-[0.035] pointer-events-none"
+          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundSize: '200px 200px' }}
         />
 
-        {/* Content — vertically centered, pushed down for navbar */}
-        <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-6 pt-20 pb-8">
+        {/* Content */}
+        <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-6 pt-32 pb-20">
 
-          {/* Scout badge / breadcrumb */}
-          <div className="inline-flex items-center gap-2 mb-6">
-            <a href="/" className="text-white/40 hover:text-white/70 text-xs font-medium tracking-widest uppercase transition">Home</a>
-            <span className="text-white/20 text-xs">/</span>
-            <span className="text-scout-red text-xs font-semibold tracking-widest uppercase">{page.title}</span>
+          {/* Red pill label */}
+          <div
+            className="inline-flex items-center gap-2 bg-scout-red/15 border border-scout-red/30 text-scout-red font-semibold text-[11px] tracking-[0.2em] uppercase px-4 py-1.5 rounded-full mb-7"
+            style={{ animation: 'fadeSlideUp 0.5s ease both' }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-scout-red inline-block" />
+            Scouting Titus Brandsma
           </div>
 
           {/* Title */}
-          <h1 className="font-display font-bold text-white uppercase tracking-tight leading-none mb-5"
-            style={{ fontSize: 'clamp(2rem, 6vw, 3.8rem)' }}>
+          <h1
+            className="font-display font-bold text-white uppercase leading-none mb-6"
+            style={{ fontSize: 'clamp(2.4rem, 7vw, 5rem)', letterSpacing: '-0.01em', animation: 'fadeSlideUp 0.6s 0.1s ease both' }}
+          >
             {page.title}
             <span className="text-scout-red">.</span>
           </h1>
 
           {/* Subtitle */}
           {page.hero_subtitle && (
-            <p className="text-white/65 text-base md:text-lg max-w-xl leading-relaxed">
+            <p
+              className="text-white/60 text-base md:text-lg max-w-2xl leading-relaxed font-light"
+              style={{ animation: 'fadeSlideUp 0.6s 0.2s ease both' }}
+            >
               {page.hero_subtitle}
             </p>
           )}
 
-          {/* Decorative horizontal rule */}
-          <div className="flex items-center gap-3 mt-8">
-            <div className="h-px w-10 bg-scout-red/60" />
-            <div className="w-1.5 h-1.5 rounded-full bg-scout-red" />
-            <div className="h-px w-10 bg-scout-red/60" />
+          {/* Divider */}
+          <div className="flex items-center gap-3 mt-10" style={{ animation: 'fadeSlideUp 0.6s 0.3s ease both' }}>
+            <div className="h-px w-12 bg-gradient-to-r from-transparent to-scout-red/70" />
+            <div className="w-2 h-2 rounded-full bg-scout-red shadow-lg shadow-scout-red/50" />
+            <div className="h-px w-12 bg-gradient-to-l from-transparent to-scout-red/70" />
           </div>
         </div>
 
-        {/* Bottom wave transition */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 56" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full" preserveAspectRatio="none">
-            <path d="M0 56 C360 0 1080 0 1440 56 L1440 56 L0 56 Z" fill="white" />
+        {/* Bottom wave */}
+        <div className="absolute bottom-0 left-0 right-0 leading-none">
+          <svg viewBox="0 0 1440 72" xmlns="http://www.w3.org/2000/svg" className="w-full block" preserveAspectRatio="none">
+            <path d="M0,72 L0,40 C240,72 480,8 720,24 C960,40 1200,72 1440,40 L1440,72 Z" fill="white" />
           </svg>
         </div>
       </div>
