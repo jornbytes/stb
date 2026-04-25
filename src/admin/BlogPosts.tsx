@@ -8,6 +8,10 @@ import {
   EyeOff,
   Save,
   AlertCircle,
+  Image,
+  Link,
+  Calendar,
+  FileText,
 } from 'lucide-react';
 import RichEditor from './RichEditor';
 import { ImagePickerField } from './ImagePicker';
@@ -32,6 +36,201 @@ function slugify(s: string) {
     .replace(/[^a-z0-9\s-]/g, '')
     .trim()
     .replace(/\s+/g, '-');
+}
+
+function SidebarSection({ icon: Icon, title, children }: {
+  icon: React.ElementType;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-gray-100 bg-gray-50/60">
+        <Icon className="w-3.5 h-3.5 text-gray-400" />
+        <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-[0.12em]">{title}</span>
+      </div>
+      <div className="p-4 space-y-3">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function PostEditor({
+  editing,
+  setEditing,
+  onBack,
+  onSave,
+  saving,
+  error,
+}: {
+  editing: Partial<Post>;
+  setEditing: React.Dispatch<React.SetStateAction<Partial<Post> | null>>;
+  onBack: () => void;
+  onSave: (publish?: boolean) => void;
+  saving: boolean;
+  error: string;
+}) {
+  const isNew = !editing.id;
+
+  function handleTitleChange(title: string) {
+    setEditing((e) => ({
+      ...e,
+      title,
+      slug: e?.id ? e!.slug : slugify(title),
+    }));
+  }
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Top bar */}
+      <div className="flex items-center justify-between mb-6 gap-4">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 transition-colors shrink-0"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Terug
+        </button>
+
+        <div className="flex items-center gap-2">
+          <span
+            className={`text-[10px] px-2.5 py-1 rounded-full font-semibold tracking-wide ${
+              editing.published ? 'bg-green-100 text-green-700' : 'bg-amber-50 text-amber-600'
+            }`}
+          >
+            {editing.published ? 'Gepubliceerd' : 'Concept'}
+          </span>
+
+          <button
+            onClick={() => onSave(!editing.published)}
+            disabled={saving}
+            className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-800 border border-gray-200 hover:border-gray-300 bg-white px-3.5 py-2 rounded-lg transition disabled:opacity-50"
+          >
+            {editing.published
+              ? <><EyeOff className="w-3.5 h-3.5" /> Verbergen</>
+              : <><Eye className="w-3.5 h-3.5" /> Publiceren</>
+            }
+          </button>
+
+          <button
+            onClick={() => onSave()}
+            disabled={saving || !editing.title}
+            className="flex items-center gap-1.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-semibold px-4 py-2 rounded-lg transition disabled:opacity-40"
+          >
+            <Save className="w-3.5 h-3.5" />
+            {saving ? 'Opslaan…' : 'Opslaan'}
+          </button>
+        </div>
+      </div>
+
+      {/* Two-column layout */}
+      <div className="flex gap-6 items-start">
+        {/* ── Main writing area ── */}
+        <div className="flex-1 min-w-0 space-y-4">
+          {/* Title */}
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <textarea
+              value={editing.title ?? ''}
+              onChange={(e) => handleTitleChange(e.target.value)}
+              placeholder={isNew ? 'Titel van het bericht…' : 'Titel'}
+              rows={2}
+              className="w-full px-5 py-4 text-2xl font-bold text-gray-900 placeholder-gray-300 resize-none focus:outline-none leading-snug"
+            />
+          </div>
+
+          {/* Rich content editor */}
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div className="px-4 py-2.5 border-b border-gray-100 bg-gray-50/60">
+              <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.12em]">Inhoud</span>
+            </div>
+            <div className="p-1">
+              <RichEditor
+                value={editing.content ?? ''}
+                onChange={(v) => setEditing((ed) => ({ ...ed, content: v }))}
+              />
+            </div>
+          </div>
+
+          {error && (
+            <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 border border-red-100 px-4 py-3 rounded-xl">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              {error}
+            </div>
+          )}
+        </div>
+
+        {/* ── Sidebar ── */}
+        <div className="w-64 shrink-0 space-y-3">
+          {/* Cover image */}
+          <SidebarSection icon={Image} title="Afbeelding">
+            <ImagePickerField
+              label=""
+              value={editing.cover_image ?? ''}
+              onChange={(url) => setEditing((ed) => ({ ...ed, cover_image: url }))}
+            />
+          </SidebarSection>
+
+          {/* Publish settings */}
+          <SidebarSection icon={Calendar} title="Datum">
+            <div>
+              <label className="block text-[11px] font-medium text-gray-400 mb-1.5">
+                Berichtdatum
+              </label>
+              <input
+                type="date"
+                value={editing.post_date ?? ''}
+                onChange={(e) =>
+                  setEditing((ed) => ({ ...ed, post_date: e.target.value || null }))
+                }
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-900 transition bg-gray-50 focus:bg-white"
+              />
+              <p className="text-[10px] text-gray-400 mt-1.5 leading-relaxed">
+                Leeg = publicatiedatum wordt gebruikt
+              </p>
+            </div>
+          </SidebarSection>
+
+          {/* URL slug */}
+          <SidebarSection icon={Link} title="URL">
+            <div>
+              <label className="block text-[11px] font-medium text-gray-400 mb-1.5">
+                Slug
+              </label>
+              <div className="text-[10px] text-gray-400 mb-1.5 font-mono break-all">/nieuws/</div>
+              <input
+                type="text"
+                value={editing.slug ?? ''}
+                onChange={(e) =>
+                  setEditing((ed) => ({ ...ed, slug: e.target.value }))
+                }
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-900 transition bg-gray-50 focus:bg-white"
+                placeholder="url-van-het-bericht"
+              />
+            </div>
+          </SidebarSection>
+
+          {/* Info card */}
+          {editing.id && (
+            <SidebarSection icon={FileText} title="Info">
+              <div className="space-y-2 text-xs text-gray-500">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Aangemaakt</span>
+                  <span>{new Date(editing.created_at!).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                </div>
+                {editing.published_at && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Gepubliceerd</span>
+                    <span>{new Date(editing.published_at).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                  </div>
+                )}
+              </div>
+            </SidebarSection>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function BlogPosts() {
@@ -71,14 +270,6 @@ export default function BlogPosts() {
     setError('');
     setView('list');
     fetchPosts();
-  }
-
-  function handleTitleChange(title: string) {
-    setEditing((e) => ({
-      ...e,
-      title,
-      slug: e?.id ? e.slug : slugify(title),
-    }));
   }
 
   async function handleSave(publish?: boolean) {
@@ -123,125 +314,14 @@ export default function BlogPosts() {
 
   if (view === 'edit' && editing !== null) {
     return (
-      <div className="max-w-3xl">
-        <button
-          onClick={handleBack}
-          className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 mb-6 transition"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Terug naar overzicht
-        </button>
-
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="font-semibold text-gray-900">
-              {editing.id ? 'Bericht bewerken' : 'Nieuw bericht'}
-            </h2>
-            <span
-              className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                editing.published ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-              }`}
-            >
-              {editing.published ? 'Gepubliceerd' : 'Concept'}
-            </span>
-          </div>
-
-          <div className="p-6 space-y-5">
-            {/* Cover image */}
-            <ImagePickerField
-              label="Afbeelding (optioneel)"
-              value={editing.cover_image ?? ''}
-              onChange={(url) => setEditing((ed) => ({ ...ed, cover_image: url }))}
-            />
-
-            {/* Title */}
-            <div>
-              <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-2">
-                Titel *
-              </label>
-              <input
-                type="text"
-                value={editing.title ?? ''}
-                onChange={(e) => handleTitleChange(e.target.value)}
-                placeholder="Titel van het bericht"
-                className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 transition font-medium"
-              />
-            </div>
-
-            {/* Slug */}
-            <div>
-              <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-2">
-                URL-slug
-              </label>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-400 shrink-0">/nieuws/</span>
-                <input
-                  type="text"
-                  value={editing.slug ?? ''}
-                  onChange={(e) => setEditing((ed) => ({ ...ed, slug: e.target.value }))}
-                  className="flex-1 border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 transition font-mono text-gray-600"
-                />
-              </div>
-            </div>
-
-            {/* Post date */}
-            <div>
-              <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-2">
-                Datum (optioneel)
-              </label>
-              <input
-                type="date"
-                value={editing.post_date ?? ''}
-                onChange={(e) => setEditing((ed) => ({ ...ed, post_date: e.target.value || null }))}
-                className="border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 transition text-gray-700"
-              />
-              <p className="mt-1.5 text-[11px] text-gray-400">
-                Leeg laten = publicatiedatum wordt gebruikt
-              </p>
-            </div>
-
-            {/* Content */}
-            <div>
-              <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-2">
-                Inhoud *
-              </label>
-              <RichEditor
-                value={editing.content ?? ''}
-                onChange={(v) => setEditing((ed) => ({ ...ed, content: v }))}
-              />
-            </div>
-
-            {error && (
-              <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 px-4 py-3 rounded-lg">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                {error}
-              </div>
-            )}
-          </div>
-
-          <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between gap-3">
-            <button
-              onClick={() => handleSave(!editing.published)}
-              disabled={saving}
-              className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 disabled:opacity-50 transition"
-            >
-              {editing.published ? (
-                <><EyeOff className="w-4 h-4" /> Zet op concept</>
-              ) : (
-                <><Eye className="w-4 h-4" /> Publiceren</>
-              )}
-            </button>
-            <button
-              onClick={() => handleSave()}
-              disabled={saving || !editing.title}
-              className="flex items-center gap-2 bg-gray-900 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-gray-800 disabled:opacity-50 transition"
-            >
-              <Save className="w-4 h-4" />
-              {saving ? 'Opslaan...' : 'Opslaan'}
-            </button>
-          </div>
-        </div>
-      </div>
+      <PostEditor
+        editing={editing}
+        setEditing={setEditing as React.Dispatch<React.SetStateAction<Partial<Post> | null>>}
+        onBack={handleBack}
+        onSave={handleSave}
+        saving={saving}
+        error={error}
+      />
     );
   }
 
@@ -249,7 +329,7 @@ export default function BlogPosts() {
     <div className="max-w-3xl">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">Blogberichten</h2>
+          <h2 className="text-lg font-semibold text-gray-900">Nieuwsberichten</h2>
           <p className="text-sm text-gray-400">{posts.length} berichten</p>
         </div>
         <button
@@ -294,7 +374,7 @@ export default function BlogPosts() {
                 <div className="flex items-center gap-2 mb-1">
                   <span
                     className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                      post.published ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                      post.published ? 'bg-green-100 text-green-700' : 'bg-amber-50 text-amber-600'
                     }`}
                   >
                     {post.published ? 'Gepubliceerd' : 'Concept'}
