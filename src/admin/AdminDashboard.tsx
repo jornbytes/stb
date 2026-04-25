@@ -25,16 +25,18 @@ import MediaLibrary from './MediaLibrary';
 import WebsiteUsers from './WebsiteUsers';
 import NavMenu from './NavMenu';
 import Settings from './Settings';
+import HomepageEditor from './HomepageEditor';
 
-type Section = 'overview' | 'blog' | 'pages' | 'texts' | 'submissions' | 'media' | 'users' | 'nav' | 'settings';
+type Section = 'overview' | 'blog' | 'pages' | 'texts' | 'submissions' | 'media' | 'users' | 'nav' | 'settings' | 'homepage';
 
 const nav: { id: Section; label: string; icon: React.ReactNode; desc: string; group?: string }[] = [
   { id: 'overview', label: 'Overzicht', icon: <LayoutDashboard className="w-4 h-4" />, desc: 'Dashboard' },
   { id: 'submissions', label: 'Aanmeldingen', icon: <Inbox className="w-4 h-4" />, desc: 'Formulier inzendingen' },
+  { id: 'homepage', label: 'Homepagina', icon: <Type className="w-4 h-4" />, desc: 'Teksten & foto\'s homepagina', group: 'Inhoud' },
   { id: 'nav', label: 'Menu', icon: <Navigation className="w-4 h-4" />, desc: 'Navigatie aanpassen', group: 'Inhoud' },
   { id: 'pages', label: "Pagina's", icon: <FileText className="w-4 h-4" />, desc: "Pagina's beheren", group: 'Inhoud' },
   { id: 'blog', label: 'Blogberichten', icon: <Newspaper className="w-4 h-4" />, desc: 'Nieuws schrijven', group: 'Inhoud' },
-  { id: 'texts', label: 'Homepage teksten', icon: <Type className="w-4 h-4" />, desc: 'Websiteteksten', group: 'Inhoud' },
+  { id: 'texts', label: 'Vrije teksten', icon: <FilePlus className="w-4 h-4" />, desc: 'Vrije websiteteksten', group: 'Inhoud' },
   { id: 'media', label: 'Mediabibliotheek', icon: <Image className="w-4 h-4" />, desc: 'Uploads beheren', group: 'Beheer' },
   { id: 'users', label: 'Gebruikers', icon: <Users className="w-4 h-4" />, desc: 'Accounts & rechten', group: 'Beheer' },
   { id: 'settings', label: 'Instellingen', icon: <SettingsIcon className="w-4 h-4" />, desc: 'API-sleutels & configuratie', group: 'Beheer' },
@@ -166,6 +168,7 @@ export default function AdminDashboard() {
         {/* Content */}
         <main className="flex-1 p-6 overflow-auto">
           {section === 'overview' && <Overview onNavigate={setSection} submissionCount={submissionCount} />}
+          {section === 'homepage' && <HomepageEditor />}
           {section === 'blog' && <BlogPosts />}
           {section === 'pages' && <Pages />}
           {section === 'texts' && <SiteTexts />}

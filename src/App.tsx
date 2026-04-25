@@ -22,6 +22,25 @@ import {
 import { supabase } from './lib/supabase';
 import AdminTopbar from './admin/AdminTopbar';
 
+// ─── Homepage content from DB ────────────────────────────────────────────────
+
+type SiteSettings = Record<string, string>;
+
+function useHomepageContent(): SiteSettings {
+  const [s, setS] = useState<SiteSettings>({});
+  useEffect(() => {
+    supabase
+      .from('site_settings')
+      .select('key, value')
+      .then(({ data }) => {
+        const map: SiteSettings = {};
+        (data ?? []).forEach((r) => { map[r.key] = r.value ?? ''; });
+        setS(map);
+      });
+  }, []);
+  return s;
+}
+
 // ─── Data ────────────────────────────────────────────────────────────────────
 
 const speltakken = [
@@ -462,15 +481,25 @@ function NavBar({ onLidWorden }: { onLidWorden: () => void }) {
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 
-function Hero({ onLidWorden }: { onLidWorden: () => void }) {
+function Hero({ onLidWorden, content }: { onLidWorden: () => void; content: SiteSettings }) {
+  const bgImage = content.hero_bg_image || 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1920&q=80';
+  const title1 = content.hero_title_1 || 'Avontuur';
+  const title2 = content.hero_title_2 || 'Vriendschap';
+  const title3 = content.hero_title_3 || 'Groei';
+  const subtitle = content.hero_subtitle || 'Scouting Titus Brandsma is al meer dan 70 jaar de plek waar kinderen en jongeren uit Oldenzaal vrienden maken, de natuur ontdekken en zichzelf ontwikkelen.';
+  const stats = [
+    { value: content.hero_stat_1_value || '70+', label: content.hero_stat_1_label || 'Jaar actief', delay: 200 },
+    { value: content.hero_stat_2_value || '40+', label: content.hero_stat_2_label || 'Vrijwilligers', delay: 400 },
+    { value: content.hero_stat_3_value || '8',   label: content.hero_stat_3_label || 'Speltakken',   delay: 600 },
+  ];
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-forest-950">
       {/* Background photo — brighter so the scene is visible */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-50 scale-105"
         style={{
-          backgroundImage:
-            'url(https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1920&q=80)',
+          backgroundImage: `url(${bgImage})`,
           animation: 'heroZoom 12s ease-out forwards',
         }}
       />
@@ -493,17 +522,16 @@ function Hero({ onLidWorden }: { onLidWorden: () => void }) {
         </div>
 
         <h1 className="font-display font-bold text-white uppercase mb-6 tracking-tight">
-          <HeroWord delay={0.15}>Avontuur<span className="text-scout-red ml-1">.</span></HeroWord>
-          <HeroWord delay={0.28}><span className="text-scout-red">Vriendschap</span><span className="text-white ml-1">.</span></HeroWord>
-          <HeroWord delay={0.41}>Groei<span className="text-scout-red ml-1">.</span></HeroWord>
+          <HeroWord delay={0.15}>{title1}<span className="text-scout-red ml-1">.</span></HeroWord>
+          <HeroWord delay={0.28}><span className="text-scout-red">{title2}</span><span className="text-white ml-1">.</span></HeroWord>
+          <HeroWord delay={0.41}>{title3}<span className="text-scout-red ml-1">.</span></HeroWord>
         </h1>
 
         <p
           className="text-white/75 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-light animate-fade-in-up"
           style={{ animationDelay: '0.6s' }}
         >
-          Scouting Titus Brandsma is al meer dan 70 jaar de plek waar kinderen en jongeren uit
-          Oldenzaal vrienden maken, de natuur ontdekken en zichzelf ontwikkelen.
+          {subtitle}
         </p>
 
         <div
@@ -529,16 +557,17 @@ function Hero({ onLidWorden }: { onLidWorden: () => void }) {
           className="mt-14 grid grid-cols-3 gap-8 max-w-lg mx-auto animate-fade-in-up"
           style={{ animationDelay: '0.9s' }}
         >
-          {[
-            { target: 70, suffix: '+', label: 'Jaar actief', delay: 200 },
-            { target: 40, suffix: '+', label: 'Vrijwilligers', delay: 400 },
-            { target: 8, suffix: '', label: 'Speltakken', delay: 600 },
-          ].map((s) => (
-            <div key={s.label} className="text-center">
-              <CountUp target={s.target} suffix={s.suffix} delay={s.delay} />
-              <div className="text-white/50 text-xs tracking-wide mt-1">{s.label}</div>
-            </div>
-          ))}
+          {stats.map((s) => {
+            const numMatch = s.value.match(/\d+/);
+            const target = numMatch ? parseInt(numMatch[0]) : 0;
+            const suffix = s.value.replace(/\d+/, '');
+            return (
+              <div key={s.label} className="text-center">
+                <CountUp target={target} suffix={suffix} delay={s.delay} />
+                <div className="text-white/50 text-xs tracking-wide mt-1">{s.label}</div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -747,7 +776,11 @@ function Speltakken() {
 
 // ─── Over Ons ─────────────────────────────────────────────────────────────────
 
-function OverOns() {
+function OverOns({ content }: { content: SiteSettings }) {
+  const title = content.over_ons_title || 'Al meer dan 70 jaar avontuur';
+  const text1 = content.over_ons_text_1 || 'Scouting Titus Brandsma is een scoutinggroep in het hart van Oldenzaal. Met ruim 40 actieve vrijwilligers bieden wij elke week inspirerende activiteiten voor kinderen en jongeren van 5 tot 21 jaar en ouder.';
+  const text2 = content.over_ons_text_2 || 'Onze roots gaan terug tot vlak na de Tweede Wereldoorlog. Door de jaren heen groeide onze groep uit tot de hechte scoutingfamilie die we vandaag de dag zijn.';
+  const photo = content.over_ons_photo || '/jubileum_groepsfoto.jpg';
   return (
     <section id="over-ons" className="relative bg-forest-950 texture-wood overflow-hidden pt-10 pb-0 px-6">
 
@@ -781,18 +814,13 @@ function OverOns() {
               Over ons
             </div>
             <h2 className="font-display text-white text-5xl md:text-6xl font-bold uppercase leading-[1.05] mb-8">
-              Al meer dan<br />
-              <span className="text-orange-400">70 jaar</span><br />
-              avontuur
+              {title}
             </h2>
             <p className="text-white/70 leading-relaxed mb-5">
-              Scouting Titus Brandsma is een scoutinggroep in het hart van Oldenzaal. Met ruim 40
-              actieve vrijwilligers bieden wij elke week inspirerende activiteiten voor kinderen en
-              jongeren van 5 tot 21 jaar en ouder.
+              {text1}
             </p>
             <p className="text-white/60 leading-relaxed mb-10 text-sm">
-              Onze roots gaan terug tot vlak na de Tweede Wereldoorlog. Door de jaren heen groeide
-              onze groep uit tot de hechte scoutingfamilie die we vandaag de dag zijn.
+              {text2}
             </p>
 
             <div className="grid grid-cols-3 gap-4">
@@ -819,8 +847,8 @@ function OverOns() {
                 style={{ transform: 'rotate(1.5deg)' }}
               >
                 <img
-                  src="/jubileum_groepsfoto.jpg"
-                  alt="Jubileum groepsfoto Scouting Titus Brandsma"
+                  src={photo}
+                  alt="Scouting Titus Brandsma groepsfoto"
                   className="w-full h-full object-cover object-top"
                 />
                 {/* Orange campfire glow overlay at bottom */}
@@ -862,8 +890,9 @@ function OverOns() {
 
 // ─── Video ────────────────────────────────────────────────────────────────────
 
-function VideoSection() {
+function VideoSection({ content }: { content: SiteSettings }) {
   const [playing, setPlaying] = useState(false);
+  const ytId = content.video_youtube_id || '7jhFlcPjLTU';
 
   return (
     <section id="video" className="relative bg-scout-cream texture-paper overflow-hidden py-24 px-6">
@@ -892,12 +921,12 @@ function VideoSection() {
             {!playing ? (
               <>
                 <img
-                  src="https://img.youtube.com/vi/7jhFlcPjLTU/maxresdefault.jpg"
+                  src={`https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`}
                   alt="Scouting video"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src =
-                      'https://img.youtube.com/vi/7jhFlcPjLTU/hqdefault.jpg';
+                      `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
                   }}
                 />
                 <div className="absolute inset-0 bg-forest-950/50 group-hover:bg-forest-950/35 transition-colors duration-300" />
@@ -924,7 +953,7 @@ function VideoSection() {
             ) : (
               <iframe
                 className="w-full h-full"
-                src="https://www.youtube.com/embed/7jhFlcPjLTU?autoplay=1&rel=0&playsinline=1"
+                src={`https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0&playsinline=1`}
                 title="Scouting Titus Brandsma"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
@@ -943,7 +972,10 @@ function VideoSection() {
 
 // ─── Gebouw ───────────────────────────────────────────────────────────────────
 
-function Gebouw() {
+function Gebouw({ content }: { content: SiteSettings }) {
+  const title = content.gebouw_title || 'Thuis in Oldenzaal';
+  const text = content.gebouw_text || 'Ons clubhuis aan de Potskampstraat is het kloppende hart van de groep: meerdere ruimtes, een volwaardige keuken en een groot buitenterrein vol avontuur.';
+  const photo = content.gebouw_photo || 'https://www.scoutingtitusbrandsma.nl/wp-content/uploads/2020/07/buiten1.jpg';
   return (
     <section id="gebouw" className="relative bg-forest-950 texture-wood overflow-hidden py-24 px-6">
       {/* Background map grid lines */}
@@ -964,7 +996,7 @@ function Gebouw() {
               style={{ transform: 'rotate(-1.5deg)' }}
             >
               <img
-                src="https://www.scoutingtitusbrandsma.nl/wp-content/uploads/2020/07/buiten1.jpg"
+                src={photo}
                 alt="Scouting Titus Brandsma buiten activiteiten"
                 className="w-full h-full object-cover aspect-[4/3]"
               />
@@ -994,11 +1026,10 @@ function Gebouw() {
               Ons gebouw
             </div>
             <h2 className="font-display text-white text-5xl md:text-6xl font-bold uppercase leading-[1.05] mb-8">
-              Thuis in<br /><span className="text-scout-red italic">Oldenzaal</span>
+              {title}
             </h2>
             <p className="text-white/70 leading-relaxed mb-5">
-              Ons clubhuis aan de Potskampstraat is het kloppende hart van de groep: meerdere
-              ruimtes, een volwaardige keuken en een groot buitenterrein vol avontuur.
+              {text}
             </p>
 
             <ul className="space-y-3 mb-10">
@@ -1389,9 +1420,13 @@ function Facebook() {
 
 // ─── Contact ──────────────────────────────────────────────────────────────────
 
-function Contact() {
+function Contact({ content }: { content: SiteSettings }) {
   const [formState, setFormState] = useState({ naam: '', email: '', onderwerp: '', bericht: '' });
   const [sent, setSent] = useState(false);
+  const contactAddress = content.contact_address || 'Potskampstraat, Oldenzaal';
+  const contactWa = content.contact_whatsapp || '+31 541 363 172';
+  const contactHours = content.contact_hours || 'Wekelijks (tijden per speltak)';
+  const waNumber = contactWa.replace(/\D/g, '');
 
   const inputCls =
     'w-full bg-forest-800 border border-forest-700 text-white placeholder-white/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-scout-red transition-colors';
@@ -1417,17 +1452,17 @@ function Contact() {
                 {
                   icon: <MapPin className="w-5 h-5 text-scout-red" />,
                   label: 'Adres',
-                  value: 'Potskampstraat, Oldenzaal',
+                  value: contactAddress,
                 },
                 {
                   icon: <MessageCircle className="w-5 h-5 text-scout-red" />,
                   label: 'WhatsApp',
-                  value: '+31 541 363 172',
+                  value: contactWa,
                 },
                 {
                   icon: <Calendar className="w-5 h-5 text-scout-red" />,
                   label: 'Bijeenkomsten',
-                  value: 'Wekelijks (tijden per speltak)',
+                  value: contactHours,
                 },
               ].map((c) => (
                 <div key={c.label} className="flex items-start gap-4">
@@ -1445,7 +1480,7 @@ function Contact() {
             </div>
 
             <a
-              href="https://wa.me/31541363172"
+              href={`https://wa.me/${waNumber}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-[#25D366] text-white font-display font-semibold text-sm px-6 py-3 rounded-full hover:bg-[#20b858] transition-all tracking-wide uppercase"
@@ -1618,7 +1653,8 @@ function WhatsAppWidget() {
 
 // ─── Footer ───────────────────────────────────────────────────────────────────
 
-function Footer() {
+function Footer({ content }: { content: SiteSettings }) {
+  const tagline = content.footer_tagline || 'Oldenzaal · Sinds 1945';
   return (
     <footer className="bg-forest-950">
       <div className="max-w-7xl mx-auto px-6 py-10">
@@ -1629,7 +1665,7 @@ function Footer() {
               <div className="text-white font-display font-bold text-sm uppercase tracking-wide leading-tight">
                 Scouting Titus Brandsma
               </div>
-              <div className="text-white/35 text-[11px] tracking-wide">Oldenzaal · Sinds 1945</div>
+              <div className="text-white/35 text-[11px] tracking-wide">{tagline}</div>
             </div>
           </div>
 
@@ -1654,29 +1690,30 @@ function Footer() {
 
 export default function App() {
   const [showPopup, setShowPopup] = useState(false);
+  const content = useHomepageContent();
 
   return (
     <div className="font-sans">
       <AdminTopbar />
       <NavBar onLidWorden={() => setShowPopup(true)} />
-      <Hero onLidWorden={() => setShowPopup(true)} />
+      <Hero onLidWorden={() => setShowPopup(true)} content={content} />
       <DividerDarkToCream />
       <Speltakken />
       <DividerCreamToDark />
-      <OverOns />
+      <OverOns content={content} />
       <DividerDarkToCream />
-      <VideoSection />
+      <VideoSection content={content} />
       <DividerCreamToDark />
-      <Gebouw />
+      <Gebouw content={content} />
       <DividerDarkToCream />
       <LidWorden onLidWorden={() => setShowPopup(true)} />
       <DividerCreamToDark />
       <Nieuws />
       <DividerDarkToCream />
       <Facebook />
-      <Contact />
+      <Contact content={content} />
       <DividerCreamToDark />
-      <Footer />
+      <Footer content={content} />
 
       {showPopup && <LidWordenPopup onClose={() => setShowPopup(false)} />}
       <WhatsAppWidget />
