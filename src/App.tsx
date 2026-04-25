@@ -90,7 +90,7 @@ const speltakken = [
 
 // ─── Lid Worden Popup ─────────────────────────────────────────────────────────
 
-function LidWordenPopup({ onClose }: { onClose: () => void }) {
+function LidWordenPopup({ onClose, content }: { onClose: () => void; content: SiteSettings }) {
   const [form, setForm] = useState({
     naam: '',
     email: '',
@@ -258,11 +258,11 @@ function LidWordenPopup({ onClose }: { onClose: () => void }) {
                 className={inputCls}
               >
                 <option value="">Kies een speltak (of weet ik nog niet)</option>
-                {speltakken.map((s) => (
-                  <option key={s.name} value={s.name}>
-                    {s.name} ({s.leeftijd})
-                  </option>
-                ))}
+                {[0,1,2,3,4,5].map((i) => {
+                  const naam = content[`speltak_${i}_naam`] || ['Bevers','Welpen','Scouts','Verkenners','Explorers','Stam'][i];
+                  const leeftijd = content[`speltak_${i}_leeftijd`] || ['5–7','7–11','11–15','14–17','17–21','21+'][i];
+                  return <option key={i} value={naam}>{naam} ({leeftijd})</option>;
+                })}
               </select>
             </div>
 
@@ -701,7 +701,23 @@ const speltakColors = [
   { bg: 'bg-stone-50',   border: 'border-stone-200',   accent: 'bg-forest-900',  tag: 'bg-stone-100 text-stone-700' },
 ];
 
-function Speltakken() {
+function Speltakken({ content }: { content: SiteSettings }) {
+  const defaultSpeltakken = [
+    { naam: 'Bevers',     leeftijd: '5 – 7 jaar',   beschrijving: 'De allerkleinsten van onze groep. Bevers spelen samen, leren de natuur kennen en maken hun eerste stappen in het scouting-avontuur.' },
+    { naam: 'Welpen',     leeftijd: '7 – 11 jaar',  beschrijving: 'Welpen leren samenwerken, knutselen en spelen spannende buitenspellen. Ze groeien als een hecht roedel onder begeleiding van hun leiders.' },
+    { naam: 'Scouts',     leeftijd: '11 – 15 jaar', beschrijving: 'Scouts leren overleven in de natuur, werken aan badges en nemen deel aan nationale en internationale kampen. Avontuur staat centraal.' },
+    { naam: 'Verkenners', leeftijd: '14 – 17 jaar', beschrijving: 'Verkenners verkennen de wereld op eigen kracht. Ze plannen hun eigen activiteiten en kampen, en nemen verantwoordelijkheid.' },
+    { naam: 'Explorers',  leeftijd: '17 – 21 jaar', beschrijving: 'Explorers werken aan grote projecten, helpen bij jongere speltakken en bereiden zich voor op een rol als leider.' },
+    { naam: 'Stam',       leeftijd: '21+',           beschrijving: 'De Stam vormt het hart van de groep. Volwassen leden ondersteunen de organisatie, begeleiden jongeren en houden de traditie levend.' },
+  ];
+
+  const cards = defaultSpeltakken.map((d, i) => ({
+    naam:         content[`speltak_${i}_naam`]         || d.naam,
+    leeftijd:     content[`speltak_${i}_leeftijd`]     || d.leeftijd,
+    beschrijving: content[`speltak_${i}_beschrijving`] || d.beschrijving,
+    href:         content[`speltak_${i}_href`]         || '',
+  }));
+
   return (
     <section id="speltakken" className="relative bg-scout-cream texture-paper overflow-hidden py-24 px-6">
       {/* Background pine silhouette */}
@@ -729,47 +745,39 @@ function Speltakken() {
 
         {/* Cards grid — alternating tilts */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-          {speltakken.map((s, i) => {
+          {cards.map((s, i) => {
             const c = speltakColors[i];
             const tilt = speltakTilts[i];
-            return (
+            const inner = (
               <div
-                key={s.name}
                 className={`group relative ${c.bg} ${c.border} border-2 rounded-2xl overflow-hidden
-                  shadow-md hover:shadow-2xl transition-all duration-300 cursor-default`}
-                style={{
-                  transform: `rotate(${tilt}deg)`,
-                  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                }}
+                  shadow-md hover:shadow-2xl transition-all duration-300 ${s.href ? 'cursor-pointer' : 'cursor-default'}`}
+                style={{ transform: `rotate(${tilt}deg)`, transition: 'transform 0.3s ease, box-shadow 0.3s ease' }}
                 onMouseEnter={e => (e.currentTarget.style.transform = 'rotate(0deg) translateY(-8px) scale(1.02)')}
                 onMouseLeave={e => (e.currentTarget.style.transform = `rotate(${tilt}deg)`)}
               >
-                {/* Top accent stripe */}
                 <div className={`${c.accent} h-3`} />
-
-                {/* Corner badge */}
                 <div className={`absolute top-5 right-4 ${c.tag} text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full`}>
                   {s.leeftijd}
                 </div>
-
                 <div className="p-7 pt-5">
-                  <h3 className="font-display text-forest-950 text-3xl font-bold uppercase mb-3 leading-none">
-                    {s.name}
-                  </h3>
+                  <h3 className="font-display text-forest-950 text-3xl font-bold uppercase mb-3 leading-none">{s.naam}</h3>
                   <p className="text-forest-600 text-sm leading-relaxed mb-5">{s.beschrijving}</p>
-                  <button className="flex items-center gap-1.5 text-scout-red font-semibold text-sm group-hover:gap-3 transition-all duration-200">
+                  <span className="flex items-center gap-1.5 text-scout-red font-semibold text-sm group-hover:gap-3 transition-all duration-200">
                     Meer weten <ChevronRight className="w-4 h-4" />
-                  </button>
+                  </span>
                 </div>
-
-                {/* Bottom fold shadow */}
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/5 rounded-b-2xl" />
               </div>
+            );
+            return s.href ? (
+              <a key={i} href={s.href}>{inner}</a>
+            ) : (
+              <div key={i}>{inner}</div>
             );
           })}
         </div>
       </div>
-
     </section>
   );
 }
@@ -1708,7 +1716,7 @@ export default function App() {
       <NavBar onLidWorden={() => setShowPopup(true)} />
       <Hero onLidWorden={() => setShowPopup(true)} content={content} />
       <DividerDarkToCream />
-      <Speltakken />
+      <Speltakken content={content} />
       <DividerCreamToDark />
       <OverOns content={content} />
       <DividerDarkToCream />
@@ -1725,7 +1733,7 @@ export default function App() {
       <DividerCreamToDark />
       <Footer content={content} />
 
-      {showPopup && <LidWordenPopup onClose={() => setShowPopup(false)} />}
+      {showPopup && <LidWordenPopup onClose={() => setShowPopup(false)} content={content} />}
       <WhatsAppWidget />
     </div>
   );

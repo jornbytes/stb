@@ -243,6 +243,18 @@ const VIDEO_KEYS = ['video_youtube_id'];
 const CONTACT_KEYS = ['contact_address', 'contact_whatsapp', 'contact_hours'];
 const FOOTER_KEYS = ['footer_tagline'];
 
+const SPELTAK_DEFAULTS = [
+  { naam: 'Bevers',     leeftijd: '5 – 7 jaar'   },
+  { naam: 'Welpen',     leeftijd: '7 – 11 jaar'  },
+  { naam: 'Scouts',     leeftijd: '11 – 15 jaar' },
+  { naam: 'Verkenners', leeftijd: '14 – 17 jaar' },
+  { naam: 'Explorers',  leeftijd: '17 – 21 jaar' },
+  { naam: 'Stam',       leeftijd: '21+'           },
+];
+const SPELTAKKEN_KEYS = Array.from({ length: 6 }, (_, i) => [
+  `speltak_${i}_naam`, `speltak_${i}_leeftijd`, `speltak_${i}_beschrijving`, `speltak_${i}_href`,
+]).flat();
+
 function HeroSection({ s, set }: { s: Settings; set: (k: string, v: string) => void }) {
   return (
     <>
@@ -370,6 +382,51 @@ function ContactSection({ s, set }: { s: Settings; set: (k: string, v: string) =
   );
 }
 
+function SpeltakkenSection({ s, set }: { s: Settings; set: (k: string, v: string) => void }) {
+  return (
+    <div className="space-y-6">
+      {SPELTAK_DEFAULTS.map((d, i) => (
+        <div key={i} className="border border-gray-100 rounded-xl p-4 space-y-3 bg-gray-50/50">
+          <p className="text-xs font-bold text-gray-700 uppercase tracking-widest">
+            Speltak {i + 1} — {s[`speltak_${i}_naam`] || d.naam}
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Field label="Naam">
+              <TextInput
+                value={s[`speltak_${i}_naam`] ?? d.naam}
+                onChange={(v) => set(`speltak_${i}_naam`, v)}
+                placeholder={d.naam}
+              />
+            </Field>
+            <Field label="Leeftijd">
+              <TextInput
+                value={s[`speltak_${i}_leeftijd`] ?? d.leeftijd}
+                onChange={(v) => set(`speltak_${i}_leeftijd`, v)}
+                placeholder={d.leeftijd}
+              />
+            </Field>
+          </div>
+          <Field label="Beschrijving">
+            <Textarea
+              value={s[`speltak_${i}_beschrijving`] ?? ''}
+              onChange={(v) => set(`speltak_${i}_beschrijving`, v)}
+              rows={2}
+              placeholder="Korte omschrijving van deze speltak..."
+            />
+          </Field>
+          <Field label="Link (optioneel)" hint='Waar gaat de "Meer weten" knop naartoe? Bijv. /bevers of https://...'>
+            <TextInput
+              value={s[`speltak_${i}_href`] ?? ''}
+              onChange={(v) => set(`speltak_${i}_href`, v)}
+              placeholder="/bevers"
+            />
+          </Field>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function FooterSection({ s, set }: { s: Settings; set: (k: string, v: string) => void }) {
   return (
     <Field label="Tagline onder logo">
@@ -416,6 +473,12 @@ export default function HomepageEditor() {
       keys: HERO_KEYS,
       defaultOpen: true,
       children: <HeroSection s={settings} set={set} />,
+    },
+    {
+      id: 'speltakken',
+      title: 'Speltakken',
+      keys: SPELTAKKEN_KEYS,
+      children: <SpeltakkenSection s={settings} set={set} />,
     },
     {
       id: 'over_ons',
