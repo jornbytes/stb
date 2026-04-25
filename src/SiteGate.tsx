@@ -21,7 +21,7 @@ function LoginScreen() {
   }
 
   return (
-    <div className="min-h-screen relative flex overflow-hidden">
+    <div className="min-h-screen relative flex items-center justify-center overflow-hidden">
       {/* Full-bleed background photo */}
       <div
         className="absolute inset-0 bg-cover bg-center"
@@ -30,125 +30,107 @@ function LoginScreen() {
           animation: 'heroZoom 20s ease-out forwards',
         }}
       />
+      {/* Subtle dark overlay so photo doesn't overpower the card */}
+      <div className="absolute inset-0 bg-forest-950/50" />
 
-      {/* Left-side dark gradient for contrast on the form side */}
-      <div className="absolute inset-0 bg-gradient-to-r from-forest-950/95 via-forest-950/70 to-forest-950/20" />
-      {/* Overall dark tint so the right side stays readable */}
-      <div className="absolute inset-0 bg-forest-950/30" />
+      {/* Centered card */}
+      <div className="relative z-10 w-full max-w-md mx-6">
+        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
 
-      {/* Layout: left panel + photo right */}
-      <div className="relative z-10 flex w-full min-h-screen">
-
-        {/* Left: login card */}
-        <div className="flex flex-col justify-center px-10 md:px-16 lg:px-24 w-full md:max-w-lg lg:max-w-xl xl:max-w-2xl">
-
-          {/* Logo */}
-          <div className="flex items-center gap-4 mb-14">
+          {/* Card top: accent bar + logo */}
+          <div className="bg-forest-950 px-10 pt-10 pb-8 flex flex-col items-center text-center">
             <img
               src="/logo-transparant-150.png"
               alt="Scouting Titus Brandsma"
-              className="h-14 w-auto drop-shadow-2xl"
-              style={{ filter: 'brightness(0) invert(1)' }}
+              className="h-16 w-auto mb-5 drop-shadow-lg"
             />
-            <div className="leading-tight">
-              <div className="font-display text-white font-semibold text-sm tracking-wide uppercase">Scouting</div>
-              <div className="font-display text-scout-red text-xs tracking-wider uppercase">Titus Brandsma</div>
+            <div className="font-display text-white font-bold text-lg tracking-[0.12em] uppercase leading-tight">
+              Scouting Titus Brandsma
+            </div>
+            <div className="mt-1 text-forest-400 text-[11px] tracking-[0.22em] uppercase font-medium">
+              Oldenzaal · Sinds 1945
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 mt-6">
+              <div className="h-px w-8 bg-scout-red/50" />
+              <div className="w-1.5 h-1.5 rounded-full bg-scout-red" />
+              <div className="h-px w-8 bg-scout-red/50" />
             </div>
           </div>
 
-          {/* Heading */}
-          <div className="mb-10">
-            <p className="text-forest-400 text-xs font-semibold tracking-[0.25em] uppercase mb-3">
-              Website in privemodus
-            </p>
-            <h1
-              className="font-display font-bold text-white uppercase tracking-tight leading-none"
-              style={{ fontSize: 'clamp(2.4rem, 5vw, 3.5rem)' }}
-            >
-              Welkom terug<span className="text-scout-red">.</span>
-            </h1>
-            <p className="text-white/40 text-sm mt-3 leading-relaxed max-w-xs">
-              Log in met je account om de website te bekijken.
-            </p>
-          </div>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5 max-w-sm">
-            <div className="space-y-1.5">
-              <label className="block text-[10px] font-semibold text-white/40 uppercase tracking-[0.18em]">
-                E-mailadres
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="jouw@email.nl"
-                className="w-full bg-white/[0.07] border border-white/12 hover:border-white/25 focus:border-forest-400 focus:bg-white/[0.1] rounded-2xl px-5 py-4 text-sm text-white placeholder-white/20 outline-none transition-all duration-200 backdrop-blur-sm"
-              />
+          {/* Card body: form */}
+          <div className="px-10 py-9">
+            <div className="mb-7">
+              <h1 className="font-display font-bold text-forest-950 uppercase tracking-tight text-2xl leading-none">
+                Privemodus<span className="text-scout-red">.</span>
+              </h1>
+              <p className="text-gray-400 text-sm mt-2 leading-relaxed">
+                Log in om de website te bekijken.
+              </p>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="block text-[10px] font-semibold text-white/40 uppercase tracking-[0.18em]">
-                Wachtwoord
-              </label>
-              <div className="relative">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.18em]">
+                  E-mailadres
+                </label>
                 <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="••••••••"
-                  className="w-full bg-white/[0.07] border border-white/12 hover:border-white/25 focus:border-forest-400 focus:bg-white/[0.1] rounded-2xl px-5 py-4 pr-12 text-sm text-white placeholder-white/20 outline-none transition-all duration-200 backdrop-blur-sm"
+                  placeholder="jouw@email.nl"
+                  className="w-full bg-gray-50 border border-gray-200 hover:border-gray-300 focus:border-forest-500 focus:bg-white focus:ring-2 focus:ring-forest-100 rounded-xl px-4 py-3.5 text-sm text-gray-800 placeholder-gray-300 outline-none transition-all duration-200"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/60 transition-colors"
-                  tabIndex={-1}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
               </div>
-            </div>
 
-            {error && (
-              <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
-                <p className="text-red-400 text-xs">{error}</p>
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.18em]">
+                  Wachtwoord
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    placeholder="••••••••"
+                    className="w-full bg-gray-50 border border-gray-200 hover:border-gray-300 focus:border-forest-500 focus:bg-white focus:ring-2 focus:ring-forest-100 rounded-xl px-4 py-3.5 pr-12 text-sm text-gray-800 placeholder-gray-300 outline-none transition-all duration-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-            )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full mt-2 bg-scout-red hover:bg-scout-darkred active:scale-[0.98] disabled:opacity-50 text-white font-display font-bold text-sm py-4 rounded-2xl transition-all duration-150 tracking-widest uppercase shadow-xl shadow-scout-red/20"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Inloggen…
-                </span>
-              ) : (
-                'Inloggen'
+              {error && (
+                <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
+                  <p className="text-red-500 text-xs">{error}</p>
+                </div>
               )}
-            </button>
-          </form>
 
-          <p className="mt-14 text-white/15 text-[10px] tracking-[0.3em] uppercase">
-            Altijd voorbereid · Oldenzaal sinds 1945
-          </p>
-        </div>
-
-        {/* Right: decorative overlay text on the photo */}
-        <div className="hidden md:flex flex-1 flex-col items-end justify-end p-12 pointer-events-none">
-          <div className="text-right">
-            <div
-              className="font-display font-bold text-white/5 uppercase leading-none select-none"
-              style={{ fontSize: 'clamp(5rem, 12vw, 10rem)' }}
-            >
-              Scouting
-            </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full mt-1 bg-scout-red hover:bg-scout-darkred active:scale-[0.98] disabled:opacity-60 text-white font-display font-bold text-sm py-4 rounded-xl transition-all duration-150 tracking-widest uppercase shadow-lg shadow-scout-red/20"
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Inloggen…
+                  </span>
+                ) : (
+                  'Inloggen'
+                )}
+              </button>
+            </form>
           </div>
         </div>
       </div>
