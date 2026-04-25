@@ -240,24 +240,43 @@ export default function BlogPostPage({ slug }: { slug: string }) {
       <AdminTopbar />
 
       {/* Hero */}
-      <div className="relative bg-forest-950 overflow-hidden" style={{ height: '480px' }}>
-        {post.cover_image && (
+      <div className="relative bg-forest-950 overflow-hidden" style={{ minHeight: '70vh' }}>
+        {post.cover_image ? (
           <div
-            className="absolute inset-0 bg-cover bg-center scale-105"
+            className="absolute inset-0 bg-cover bg-center"
             style={{
               backgroundImage: `url(${post.cover_image})`,
               animation: 'heroZoom 14s ease-out forwards',
             }}
           />
+        ) : (
+          <div className="absolute inset-0 bg-forest-900" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-forest-950/40 via-forest-950/55 to-forest-950/95" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(7,26,11,0.55)_100%)]" />
+
+        {/* Gradient: subtle top darken for nav legibility, strong bottom for text */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/80" />
 
         <NavBar />
 
-        <div className="relative z-10 h-full flex flex-col items-center justify-end text-center px-6 pb-14">
+        <div className="relative z-10 flex flex-col items-center justify-end text-center px-6 pb-16 pt-40">
+          {/* Category / back crumb */}
+          <a
+            href="/nieuws/"
+            className="inline-flex items-center gap-1.5 text-white/50 hover:text-white text-xs font-medium tracking-widest uppercase mb-6 transition-colors"
+          >
+            <ArrowLeft className="w-3 h-3" /> Nieuws
+          </a>
+
+          {/* Title */}
+          <h1
+            className="font-display font-bold text-white uppercase tracking-tight leading-[0.95] max-w-4xl mb-6"
+            style={{ fontSize: 'clamp(2rem, 5.5vw, 4rem)' }}
+          >
+            {post.title}<span className="text-scout-red">.</span>
+          </h1>
+
           {/* Meta */}
-          <div className="flex items-center gap-4 text-white/50 text-xs mb-4">
+          <div className="flex items-center gap-4 text-white/55 text-sm">
             <span className="flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5" /> {publishDate}
             </span>
@@ -266,28 +285,6 @@ export default function BlogPostPage({ slug }: { slug: string }) {
               <Clock className="w-3.5 h-3.5" /> {mins} min. leestijd
             </span>
           </div>
-
-          {/* Title */}
-          <h1
-            className="font-display font-bold text-white uppercase tracking-tight leading-none max-w-4xl"
-            style={{ fontSize: 'clamp(1.8rem, 5vw, 3.5rem)' }}
-          >
-            {post.title}<span className="text-scout-red">.</span>
-          </h1>
-
-          {/* Decorative rule */}
-          <div className="flex items-center gap-3 mt-6">
-            <div className="h-px w-10 bg-scout-red/60" />
-            <div className="w-1.5 h-1.5 rounded-full bg-scout-red" />
-            <div className="h-px w-10 bg-scout-red/60" />
-          </div>
-        </div>
-
-        {/* Bottom wave */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 56" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full" preserveAspectRatio="none">
-            <path d="M0 56 C360 0 1080 0 1440 56 L1440 56 L0 56 Z" fill="white" />
-          </svg>
         </div>
       </div>
 
