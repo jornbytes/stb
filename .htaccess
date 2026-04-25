@@ -1,15 +1,4 @@
-Options -MultiViews
-RewriteEngine On
-
-# Proxy /api/ naar Node.js (pas poort aan naar jouw Node.js poort in cPanel)
-RewriteCond %{REQUEST_URI} ^/api/
-RewriteRule ^api/(.*)$ http://localhost:3000/api/$1 [P,L]
-
-# Proxy /img/ naar Node.js voor geüploade bestanden
-RewriteCond %{REQUEST_URI} ^/img/
-RewriteRule ^img/(.*)$ http://localhost:3000/img/$1 [P,L]
-
-# SPA fallback: stuur alle andere requests naar index.html
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ /index.html [L]
+PassengerEnabled on
+PassengerNodejs /usr/local/bin/node
+PassengerStartupFile server.js
+PassengerAppType node

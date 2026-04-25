@@ -3,16 +3,27 @@ import { supabase } from '../lib/supabase';
 import { Upload, Copy, Trash2, Image as ImageIcon, X, Check, Search } from 'lucide-react';
 
 async function apiUpload(files: File[]): Promise<{ filename: string; storage_path: string; public_url: string; mime_type: string; size: number }[]> {
-  const body = new FormData();
-  for (const f of files) body.append('files', f);
-  const res = await fetch('/api/upload', { method: 'POST', body });
-  if (!res.ok) throw new Error(await res.text());
-  const data = await res.json();
-  return data.files;
+  const results = [];
+  for (const file of files) {
+    const ext = file.name.split('.').pop();
+    const storageName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await supabase.storage.from('media').upload(storageName, file, { contentType: file.type });
+    if (error) throw new Error(error.message);
+    const { data: urlData } = supabase.storage.from('media').getPublicUrl(storageName);
+    results.push({
+      filename: file.name,
+      storage_path: storageName,
+      public_url: urlData.publicUrl,
+      mime_type: file.type,
+      size: file.size,
+    });
+  }
+  return results;
 }
 
 async function apiDelete(storagePath: string): Promise<void> {
-  await fetch(`/api/upload/${encodeURIComponent(storagePath)}`, { method: 'DELETE' });
+  const { error } = await supabase.storage.from('media').remove([storagePath]);
+  if (error) throw new Error(error.message);
 }
 
 type MediaFile = {
