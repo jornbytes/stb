@@ -8,6 +8,8 @@ import {
   Image as ImageIcon,
   X,
   ChevronDown,
+  FileText,
+  Globe,
 } from 'lucide-react';
 
 type Settings = Record<string, string>;
@@ -382,7 +384,111 @@ function ContactSection({ s, set }: { s: Settings; set: (k: string, v: string) =
   );
 }
 
+type Page = { id: string; title: string; slug: string };
+
+function usePagesOnce() {
+  const [pages, setPages] = useState<Page[]>([]);
+  useEffect(() => {
+    supabase.from('pages').select('id, title, slug').order('title').then(({ data }) => setPages(data ?? []));
+  }, []);
+  return pages;
+}
+
+function LinkField({
+  label,
+  value,
+  onChange,
+  pages,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  pages: Page[];
+}) {
+  // Determine current type based on value
+  const matchedPage = pages.find(p => value === `/${p.slug}`);
+  const [type, setType] = useState<'external' | 'page'>(matchedPage ? 'page' : 'external');
+  const [pageId, setPageId] = useState<string>(matchedPage?.id ?? '');
+
+  function switchType(t: 'external' | 'page') {
+    setType(t);
+    if (t === 'page') {
+      const page = pages.find(p => p.id === pageId);
+      onChange(page ? `/${page.slug}` : '');
+    } else {
+      onChange('');
+    }
+  }
+
+  function handlePageChange(id: string) {
+    setPageId(id);
+    const page = pages.find(p => p.id === id);
+    onChange(page ? `/${page.slug}` : '');
+  }
+
+  return (
+    <Field label={label}>
+      {/* Type toggle */}
+      <div className="grid grid-cols-2 gap-2 mb-2">
+        {(['external', 'page'] as const).map(t => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => switchType(t)}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-all ${
+              type === t
+                ? 'border-forest-500 bg-forest-50 text-forest-700'
+                : 'border-gray-200 text-gray-500 hover:border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            {t === 'page'
+              ? <><FileText className="w-3.5 h-3.5" /> Pagina</>
+              : <><Globe className="w-3.5 h-3.5" /> Externe link</>
+            }
+          </button>
+        ))}
+      </div>
+
+      {/* Page selector */}
+      {type === 'page' && (
+        pages.length === 0 ? (
+          <p className="text-xs text-gray-400 bg-gray-50 rounded-lg px-3 py-2">Nog geen pagina's aangemaakt.</p>
+        ) : (
+          <select
+            value={pageId}
+            onChange={e => handlePageChange(e.target.value)}
+            className={inputCls}
+          >
+            <option value="">Kies een pagina...</option>
+            {pages.map(p => (
+              <option key={p.id} value={p.id}>{p.title}</option>
+            ))}
+          </select>
+        )
+      )}
+
+      {/* External URL */}
+      {type === 'external' && (
+        <>
+          <input
+            type="text"
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            placeholder="bijv. #speltakken of https://example.com"
+            className={inputCls}
+          />
+          <p className="text-[11px] text-gray-400 mt-1">
+            Gebruik <code className="bg-gray-100 px-1 rounded">#sectie</code> voor ankerpunten, of een volledige URL.
+          </p>
+        </>
+      )}
+    </Field>
+  );
+}
+
 function SpeltakkenSection({ s, set }: { s: Settings; set: (k: string, v: string) => void }) {
+  const pages = usePagesOnce();
+
   return (
     <div className="space-y-6">
       {SPELTAK_DEFAULTS.map((d, i) => (
@@ -414,13 +520,12 @@ function SpeltakkenSection({ s, set }: { s: Settings; set: (k: string, v: string
               placeholder="Korte omschrijving van deze speltak..."
             />
           </Field>
-          <Field label="Link (optioneel)" hint='Waar gaat de "Meer weten" knop naartoe? Bijv. /bevers of https://...'>
-            <TextInput
-              value={s[`speltak_${i}_href`] ?? ''}
-              onChange={(v) => set(`speltak_${i}_href`, v)}
-              placeholder="/bevers"
-            />
-          </Field>
+          <LinkField
+            label='Link (optioneel) — "Meer weten" knop'
+            value={s[`speltak_${i}_href`] ?? ''}
+            onChange={(v) => set(`speltak_${i}_href`, v)}
+            pages={pages}
+          />
         </div>
       ))}
     </div>
