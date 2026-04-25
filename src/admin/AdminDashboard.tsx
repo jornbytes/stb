@@ -262,7 +262,7 @@ function Overview({ onNavigate, submissionCount }: { onNavigate: (s: Section) =>
             badge={submissionCount ?? undefined}
           />
           <QuickAction
-            icon={<FilePlus className="w-6 h-6 text-forest-600" />}
+            icon={<FileText className="w-6 h-6 text-forest-600" />}
             label="Nieuwe pagina"
             desc="Maak een pagina aan"
             onClick={() => onNavigate('pages')}
