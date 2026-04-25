@@ -26,12 +26,14 @@ import NavMenu from './NavMenu';
 import Settings from './Settings';
 import HomepageEditor from './HomepageEditor';
 import ContactEditor from './ContactEditor';
+import ContactSubmissions from './ContactSubmissions';
 
-type Section = 'overview' | 'blog' | 'pages' | 'submissions' | 'media' | 'users' | 'nav' | 'settings' | 'homepage' | 'contact';
+type Section = 'overview' | 'blog' | 'pages' | 'submissions' | 'media' | 'users' | 'nav' | 'settings' | 'homepage' | 'contact' | 'contact-messages';
 
 const nav: { id: Section; label: string; icon: React.ReactNode; desc: string; group?: string }[] = [
   { id: 'overview', label: 'Overzicht', icon: <LayoutDashboard className="w-4 h-4" />, desc: 'Dashboard' },
   { id: 'submissions', label: 'Aanmeldingen', icon: <Inbox className="w-4 h-4" />, desc: 'Formulier inzendingen' },
+  { id: 'contact-messages', label: 'Contactberichten', icon: <MessageCircle className="w-4 h-4" />, desc: 'Berichten via contactformulier' },
   { id: 'homepage', label: 'Homepagina', icon: <Type className="w-4 h-4" />, desc: 'Teksten & foto\'s homepagina', group: 'Inhoud' },
   { id: 'contact', label: 'Contactpagina', icon: <MessageCircle className="w-4 h-4" />, desc: 'Contactgegevens & formulier', group: 'Inhoud' },
   { id: 'nav', label: 'Menu', icon: <Navigation className="w-4 h-4" />, desc: 'Navigatie aanpassen', group: 'Inhoud' },
@@ -47,11 +49,13 @@ export default function AdminDashboard() {
   const [section, setSection] = useState<Section>('overview');
   const [mobileOpen, setMobileOpen] = useState(false);
   const [submissionCount, setSubmissionCount] = useState<number | null>(null);
+  const [contactMessageCount, setContactMessageCount] = useState<number | null>(null);
 
   useEffect(() => {
-    supabase.from('membership_requests').select('id', { count: 'exact', head: true }).then(({ count }) => {
-      setSubmissionCount(count ?? 0);
-    });
+    supabase.from('membership_requests').select('id', { count: 'exact', head: true })
+      .then(({ count }) => setSubmissionCount(count ?? 0));
+    supabase.from('contact_messages').select('id', { count: 'exact', head: true }).eq('behandeld', false)
+      .then(({ count }) => setContactMessageCount(count ?? 0));
   }, []);
 
   async function handleLogout() {
@@ -93,6 +97,9 @@ export default function AdminDashboard() {
                   <span className="flex-1 text-left">{item.label}</span>
                   {item.id === 'submissions' && submissionCount !== null && submissionCount > 0 && (
                     <span className="bg-scout-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">{submissionCount}</span>
+                  )}
+                  {item.id === 'contact-messages' && contactMessageCount !== null && contactMessageCount > 0 && (
+                    <span className="bg-scout-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">{contactMessageCount}</span>
                   )}
                   {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-white/60 rounded-r-full" />}
                 </button>
@@ -171,6 +178,7 @@ export default function AdminDashboard() {
           {section === 'overview' && <Overview onNavigate={setSection} submissionCount={submissionCount} />}
           {section === 'homepage' && <HomepageEditor />}
           {section === 'contact' && <ContactEditor />}
+          {section === 'contact-messages' && <ContactSubmissions />}
           {section === 'blog' && <BlogPosts />}
           {section === 'pages' && <Pages />}
           {section === 'submissions' && <Submissions />}

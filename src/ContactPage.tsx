@@ -181,8 +181,7 @@ export default function ContactPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSending(true);
-    // Store as contact_messages in site_settings (simple approach) or just show success
-    await new Promise(r => setTimeout(r, 600));
+    await supabase.from('contact_messages').insert({ fields: formValues });
     setSending(false);
     setSent(true);
   }
