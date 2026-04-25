@@ -66,6 +66,15 @@ export default function MediaLibrary({ onSelect, selectable = false }: { onSelec
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const selectedFiles = Array.from(e.target.files ?? []);
     if (!selectedFiles.length) return;
+
+    const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
+    const tooBig = selectedFiles.filter(f => f.size > MAX_SIZE);
+    if (tooBig.length > 0) {
+      setError(`Bestand${tooBig.length > 1 ? 'en' : ''} te groot (max. 2 MB): ${tooBig.map(f => f.name).join(', ')}`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
     setUploading(true);
     setError(null);
 
