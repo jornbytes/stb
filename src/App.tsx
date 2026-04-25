@@ -1164,6 +1164,7 @@ type BlogPost = {
   content: string;
   cover_image: string;
   published_at: string | null;
+  post_date: string | null;
   created_at: string;
 };
 
@@ -1196,12 +1197,15 @@ function Nieuws() {
   useEffect(() => {
     supabase
       .from('blog_posts')
-      .select('id, title, slug, content, cover_image, published_at, created_at')
+      .select('id, title, slug, content, cover_image, published_at, post_date, created_at')
       .eq('published', true)
-      .order('published_at', { ascending: false })
-      .limit(6)
       .then(({ data }) => {
-        setPosts(data ?? []);
+        const effectiveDate = (p: BlogPost) => {
+          const raw = p.post_date ?? p.published_at ?? p.created_at;
+          return new Date(raw.length === 10 ? raw + 'T00:00:00' : raw).getTime();
+        };
+        const sorted = (data ?? []).sort((a, b) => effectiveDate(b) - effectiveDate(a)).slice(0, 6);
+        setPosts(sorted);
         setLoading(false);
       });
   }, []);
@@ -1254,7 +1258,7 @@ function Nieuws() {
                 </div>
                 <div className="p-6 flex flex-col flex-1">
                   <div className="text-scout-red text-xs font-medium tracking-widest uppercase mb-3">
-                    {new Date(post.published_at ?? post.created_at).toLocaleDateString('nl-NL', {
+                    {new Date(post.post_date ?? post.published_at ?? post.created_at).toLocaleDateString('nl-NL', {
                       day: 'numeric', month: 'long', year: 'numeric',
                     })}
                   </div>

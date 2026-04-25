@@ -249,9 +249,12 @@ export default function BlogPosts() {
     setLoading(true);
     const { data } = await supabase
       .from('blog_posts')
-      .select('*')
-      .order('created_at', { ascending: false });
-    setPosts(data ?? []);
+      .select('*');
+    const effectiveDate = (p: Post) => {
+      const raw = p.post_date ?? p.published_at ?? p.created_at;
+      return new Date(raw.length === 10 ? raw + 'T00:00:00' : raw).getTime();
+    };
+    setPosts((data ?? []).sort((a, b) => effectiveDate(b) - effectiveDate(a)));
     setLoading(false);
   }
 
