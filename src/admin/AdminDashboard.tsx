@@ -15,6 +15,7 @@ import {
   Image,
   Navigation,
   Settings as SettingsIcon,
+  MessageCircle,
 } from 'lucide-react';
 import BlogPosts from './BlogPosts';
 import Pages from './Pages';
@@ -24,13 +25,15 @@ import WebsiteUsers from './WebsiteUsers';
 import NavMenu from './NavMenu';
 import Settings from './Settings';
 import HomepageEditor from './HomepageEditor';
+import ContactEditor from './ContactEditor';
 
-type Section = 'overview' | 'blog' | 'pages' | 'submissions' | 'media' | 'users' | 'nav' | 'settings' | 'homepage';
+type Section = 'overview' | 'blog' | 'pages' | 'submissions' | 'media' | 'users' | 'nav' | 'settings' | 'homepage' | 'contact';
 
 const nav: { id: Section; label: string; icon: React.ReactNode; desc: string; group?: string }[] = [
   { id: 'overview', label: 'Overzicht', icon: <LayoutDashboard className="w-4 h-4" />, desc: 'Dashboard' },
   { id: 'submissions', label: 'Aanmeldingen', icon: <Inbox className="w-4 h-4" />, desc: 'Formulier inzendingen' },
   { id: 'homepage', label: 'Homepagina', icon: <Type className="w-4 h-4" />, desc: 'Teksten & foto\'s homepagina', group: 'Inhoud' },
+  { id: 'contact', label: 'Contactpagina', icon: <MessageCircle className="w-4 h-4" />, desc: 'Contactgegevens & formulier', group: 'Inhoud' },
   { id: 'nav', label: 'Menu', icon: <Navigation className="w-4 h-4" />, desc: 'Navigatie aanpassen', group: 'Inhoud' },
   { id: 'pages', label: "Pagina's", icon: <FileText className="w-4 h-4" />, desc: "Pagina's beheren", group: 'Inhoud' },
   { id: 'blog', label: 'Blogberichten', icon: <Newspaper className="w-4 h-4" />, desc: 'Nieuws schrijven', group: 'Inhoud' },
@@ -167,9 +170,9 @@ export default function AdminDashboard() {
         <main className="flex-1 p-6 overflow-auto">
           {section === 'overview' && <Overview onNavigate={setSection} submissionCount={submissionCount} />}
           {section === 'homepage' && <HomepageEditor />}
+          {section === 'contact' && <ContactEditor />}
           {section === 'blog' && <BlogPosts />}
           {section === 'pages' && <Pages />}
-
           {section === 'submissions' && <Submissions />}
           {section === 'media' && <MediaLibrary />}
           {section === 'users' && <WebsiteUsers />}

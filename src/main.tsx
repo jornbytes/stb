@@ -5,6 +5,7 @@ import AdminApp from './admin/AdminApp.tsx';
 import PageView from './PageView.tsx';
 import BlogPostPage from './BlogPostPage.tsx';
 import NewsPage from './NewsPage.tsx';
+import ContactPage from './ContactPage.tsx';
 import SiteGate from './SiteGate.tsx';
 import './index.css';
 
@@ -17,6 +18,9 @@ function PublicSite() {
   // Blog post detail page
   const nieuwsMatch = path.match(/^\/nieuws\/(.+?)\/?$/);
   if (nieuwsMatch) return <BlogPostPage slug={nieuwsMatch[1]} />;
+
+  // Contact page
+  if (path === '/contact' || path === '/contact/') return <ContactPage />;
 
   // Any other non-root path → try as a page slug
   if (path !== '/' && !path.startsWith('/assets')) {
