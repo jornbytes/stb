@@ -1670,7 +1670,6 @@ export default function App() {
       <Nieuws />
       <DividerDarkToCream />
       <Facebook />
-      <DividerCreamToDark />
       <Contact />
       <DividerCreamToDark />
       <Footer />
