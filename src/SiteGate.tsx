@@ -2,6 +2,15 @@ import { useState, useEffect, ReactNode } from 'react';
 import { supabase } from './lib/supabase';
 import { Eye, EyeOff } from 'lucide-react';
 
+async function isSitePrivate(): Promise<boolean> {
+  const { data } = await supabase
+    .from('site_settings')
+    .select('value')
+    .eq('key', 'site_private')
+    .maybeSingle();
+  return data?.value !== 'false';
+}
+
 function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -139,16 +148,28 @@ function LoginScreen() {
 }
 
 export default function SiteGate({ children }: { children: ReactNode }) {
-  const [status, setStatus] = useState<'loading' | 'authed' | 'unauthed'>('loading');
+  const [status, setStatus] = useState<'loading' | 'authed' | 'unauthed' | 'public'>('loading');
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    async function init() {
+      const privateMode = await isSitePrivate();
+      if (!privateMode) {
+        setStatus('public');
+        return;
+      }
+      const { data: { session } } = await supabase.auth.getSession();
       setStatus(session ? 'authed' : 'unauthed');
-    });
+    }
+
+    init();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       (() => {
-        setStatus(session ? 'authed' : 'unauthed');
+        // Only update auth state if we're in private mode
+        setStatus(prev => {
+          if (prev === 'public') return 'public';
+          return session ? 'authed' : 'unauthed';
+        });
       })();
     });
 
