@@ -12,14 +12,12 @@ import {
   ExternalLink,
   ChevronRight,
   Users,
-  FilePlus,
   Image,
   Navigation,
   Settings as SettingsIcon,
 } from 'lucide-react';
 import BlogPosts from './BlogPosts';
 import Pages from './Pages';
-import SiteTexts from './SiteTexts';
 import Submissions from './Submissions';
 import MediaLibrary from './MediaLibrary';
 import WebsiteUsers from './WebsiteUsers';
@@ -27,7 +25,7 @@ import NavMenu from './NavMenu';
 import Settings from './Settings';
 import HomepageEditor from './HomepageEditor';
 
-type Section = 'overview' | 'blog' | 'pages' | 'texts' | 'submissions' | 'media' | 'users' | 'nav' | 'settings' | 'homepage';
+type Section = 'overview' | 'blog' | 'pages' | 'submissions' | 'media' | 'users' | 'nav' | 'settings' | 'homepage';
 
 const nav: { id: Section; label: string; icon: React.ReactNode; desc: string; group?: string }[] = [
   { id: 'overview', label: 'Overzicht', icon: <LayoutDashboard className="w-4 h-4" />, desc: 'Dashboard' },
@@ -36,7 +34,7 @@ const nav: { id: Section; label: string; icon: React.ReactNode; desc: string; gr
   { id: 'nav', label: 'Menu', icon: <Navigation className="w-4 h-4" />, desc: 'Navigatie aanpassen', group: 'Inhoud' },
   { id: 'pages', label: "Pagina's", icon: <FileText className="w-4 h-4" />, desc: "Pagina's beheren", group: 'Inhoud' },
   { id: 'blog', label: 'Blogberichten', icon: <Newspaper className="w-4 h-4" />, desc: 'Nieuws schrijven', group: 'Inhoud' },
-  { id: 'texts', label: 'Vrije teksten', icon: <FilePlus className="w-4 h-4" />, desc: 'Vrije websiteteksten', group: 'Inhoud' },
+
   { id: 'media', label: 'Mediabibliotheek', icon: <Image className="w-4 h-4" />, desc: 'Uploads beheren', group: 'Beheer' },
   { id: 'users', label: 'Gebruikers', icon: <Users className="w-4 h-4" />, desc: 'Accounts & rechten', group: 'Beheer' },
   { id: 'settings', label: 'Instellingen', icon: <SettingsIcon className="w-4 h-4" />, desc: 'API-sleutels & configuratie', group: 'Beheer' },
@@ -171,7 +169,7 @@ export default function AdminDashboard() {
           {section === 'homepage' && <HomepageEditor />}
           {section === 'blog' && <BlogPosts />}
           {section === 'pages' && <Pages />}
-          {section === 'texts' && <SiteTexts />}
+
           {section === 'submissions' && <Submissions />}
           {section === 'media' && <MediaLibrary />}
           {section === 'users' && <WebsiteUsers />}
