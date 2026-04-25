@@ -1324,31 +1324,54 @@ function FacebookWidget() {
 
 function Facebook() {
   return (
-    <section className="relative bg-scout-cream texture-paper overflow-hidden py-24 px-6">
-      <div className="max-w-7xl mx-auto relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+    <section className="relative overflow-hidden bg-forest-950 py-28 px-6">
 
-          {/* Left: text + CTA */}
-          <div>
-            <div className="inline-flex items-center gap-2.5 mb-5">
-              <div className="w-7 h-7 rounded-lg p-1.5 shrink-0" style={{ background: '#1877F2' }}>
-                {FB_SVG}
-              </div>
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Volg ons op</span>
-            </div>
-            <h2 className="font-display text-forest-950 text-4xl md:text-5xl font-bold uppercase leading-none mb-4">
-              Facebook<span className="text-scout-red">.</span>
-            </h2>
-            <p className="text-forest-600 max-w-sm leading-relaxed mb-8">
+      {/* Subtle background texture */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_100%,rgba(29,82,38,0.35),transparent)]" />
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-forest-700/50 to-transparent" />
+      <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-forest-700/50 to-transparent" />
+
+      <div className="max-w-7xl mx-auto relative z-10">
+
+        {/* Section header */}
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 mb-4">
+            <div className="h-px w-8 bg-forest-600" />
+            <span className="text-[11px] font-semibold text-forest-400 uppercase tracking-[0.2em]">Volg ons op</span>
+            <div className="h-px w-8 bg-forest-600" />
+          </div>
+          <h2 className="font-display text-white text-4xl md:text-5xl font-bold uppercase leading-none">
+            Facebook<span className="text-scout-red">.</span>
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-start">
+
+          {/* Left: text + CTA — narrower column */}
+          <div className="lg:col-span-2 flex flex-col justify-center lg:pt-4">
+            <p className="text-forest-300 leading-relaxed text-base mb-10">
               Blijf op de hoogte van het laatste nieuws, foto's en activiteiten via onze Facebook-pagina. Like ons en mis niets!
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            {/* Stats row */}
+            <div className="grid grid-cols-2 gap-4 mb-10">
+              {[
+                { label: 'Volgers', value: '800+' },
+                { label: 'Jaar actief', value: '70+' },
+              ].map(({ label, value }) => (
+                <div key={label} className="bg-white/5 border border-white/8 rounded-2xl px-5 py-4">
+                  <p className="font-display text-2xl font-bold text-white">{value}</p>
+                  <p className="text-xs text-forest-400 uppercase tracking-widest mt-0.5">{label}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-col gap-3">
               <a
                 href="https://www.facebook.com/ScoutingOldenzaal/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2.5 text-white font-display font-semibold text-sm px-6 py-3 rounded-full tracking-wide uppercase transition-opacity hover:opacity-90"
+                className="inline-flex items-center justify-center gap-2.5 text-white font-display font-semibold text-sm px-6 py-3.5 rounded-xl tracking-wide uppercase transition-opacity hover:opacity-85 shadow-lg shadow-black/30"
                 style={{ background: '#1877F2' }}
               >
                 <div className="w-4 h-4 shrink-0">{FB_SVG}</div>
@@ -1358,18 +1381,16 @@ function Facebook() {
                 href="https://www.facebook.com/ScoutingOldenzaal/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 text-forest-800 font-display font-semibold text-sm px-6 py-3 rounded-full tracking-wide uppercase border-2 border-forest-200 hover:border-forest-400 transition-colors"
+                className="inline-flex items-center justify-center gap-2 text-forest-300 font-display font-semibold text-sm px-6 py-3.5 rounded-xl tracking-wide uppercase border border-forest-700 hover:border-forest-500 hover:text-white transition-colors"
               >
                 Bekijk alle posts
               </a>
             </div>
-
-
           </div>
 
-          {/* Right: live Facebook Page Plugin */}
-          <div className="flex justify-center lg:justify-start">
-            <div className="rounded-2xl overflow-hidden shadow-xl border border-forest-100 w-full max-w-[500px]">
+          {/* Right: Facebook embed — wider column */}
+          <div className="lg:col-span-3 flex justify-center">
+            <div className="w-full max-w-[500px] rounded-2xl overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.5)] ring-1 ring-white/10">
               <FacebookWidget />
             </div>
           </div>
