@@ -1,0 +1,5 @@
+PassengerEnabled on
+PassengerNodejs /usr/local/bin/node
+
+# Stuur alles via Passenger/Node.js
+Options -MultiViews
