@@ -290,11 +290,13 @@ export default function NewsPage() {
       .select('id, title, slug, content, cover_image, published_at, post_date, created_at')
       .eq('published', true)
       .then(({ data }) => {
-        const sorted = (data ?? []).sort((a, b) => {
-          const da = new Date(a.post_date ?? a.published_at ?? a.created_at).getTime();
-          const db = new Date(b.post_date ?? b.published_at ?? b.created_at).getTime();
-          return db - da;
-        });
+        const effectiveDate = (p: typeof data[0]) => {
+          const raw = p.post_date ?? p.published_at ?? p.created_at;
+          // Normalise: date-only strings like "2026-03-30" get appended with time
+          // so they compare correctly against full ISO timestamps.
+          return new Date(raw.length === 10 ? raw + 'T00:00:00' : raw).getTime();
+        };
+        const sorted = (data ?? []).sort((a, b) => effectiveDate(b) - effectiveDate(a));
         setPosts(sorted);
         setLoading(false);
       });
