@@ -12,6 +12,7 @@ type Post = {
   cover_image: string;
   published: boolean;
   published_at: string | null;
+  post_date: string | null;
   created_at: string;
 };
 
@@ -196,10 +197,10 @@ export default function BlogPostPage({ slug }: { slug: string }) {
       // Load up to 2 other published posts
       const { data: others } = await supabase
         .from('blog_posts')
-        .select('id, title, slug, cover_image, published_at, created_at, content')
+        .select('id, title, slug, cover_image, published_at, post_date, created_at, content')
         .eq('published', true)
         .neq('id', data.id)
-        .order('published_at', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(2);
 
       setRelated(others ?? []);
@@ -229,7 +230,7 @@ export default function BlogPostPage({ slug }: { slug: string }) {
     );
   }
 
-  const publishDate = new Date(post.published_at ?? post.created_at).toLocaleDateString('nl-NL', {
+  const publishDate = new Date(post.post_date ?? post.published_at ?? post.created_at).toLocaleDateString('nl-NL', {
     day: 'numeric', month: 'long', year: 'numeric',
   });
   const mins = readingTime(post.content);
@@ -338,7 +339,7 @@ export default function BlogPostPage({ slug }: { slug: string }) {
                   )}
                   <div className="p-5">
                     <div className="text-scout-red text-xs font-medium tracking-widest uppercase mb-2">
-                      {new Date(r.published_at ?? r.created_at).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      {new Date(r.post_date ?? r.published_at ?? r.created_at).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </div>
                     <h3 className="font-display text-white text-lg font-bold uppercase leading-tight group-hover:text-scout-red transition-colors">
                       {r.title}

@@ -20,6 +20,7 @@ type Post = {
   cover_image: string;
   published: boolean;
   published_at: string | null;
+  post_date: string | null;
   created_at: string;
 };
 
@@ -56,7 +57,7 @@ export default function BlogPosts() {
   }
 
   function openNew() {
-    setEditing({ title: '', slug: '', content: '', cover_image: '', published: false });
+    setEditing({ title: '', slug: '', content: '', cover_image: '', published: false, post_date: null });
     setView('edit');
   }
 
@@ -93,6 +94,7 @@ export default function BlogPosts() {
       published: publish !== undefined ? publish : editing.published ?? false,
       published_at:
         publish && !editing.published_at ? new Date().toISOString() : editing.published_at ?? null,
+      post_date: editing.post_date || null,
     };
 
     let err;
@@ -180,6 +182,22 @@ export default function BlogPosts() {
                   className="flex-1 border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 transition font-mono text-gray-600"
                 />
               </div>
+            </div>
+
+            {/* Post date */}
+            <div>
+              <label className="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-2">
+                Datum (optioneel)
+              </label>
+              <input
+                type="date"
+                value={editing.post_date ?? ''}
+                onChange={(e) => setEditing((ed) => ({ ...ed, post_date: e.target.value || null }))}
+                className="border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 transition text-gray-700"
+              />
+              <p className="mt-1.5 text-[11px] text-gray-400">
+                Leeg laten = publicatiedatum wordt gebruikt
+              </p>
             </div>
 
             {/* Content */}
@@ -284,7 +302,7 @@ export default function BlogPosts() {
                 </div>
                 <h3 className="font-semibold text-gray-900 text-sm truncate">{post.title}</h3>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  {new Date(post.created_at).toLocaleDateString('nl-NL', {
+                  {new Date(post.post_date ?? post.published_at ?? post.created_at).toLocaleDateString('nl-NL', {
                     day: 'numeric', month: 'long', year: 'numeric',
                   })}
                 </p>

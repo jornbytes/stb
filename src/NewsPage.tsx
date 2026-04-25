@@ -10,6 +10,7 @@ type Post = {
   content: string;
   cover_image: string;
   published_at: string | null;
+  post_date: string | null;
   created_at: string;
 };
 
@@ -184,7 +185,7 @@ function excerpt(content: string, maxLen = 120): string {
 }
 
 function PostCard({ post, featured = false }: { post: Post; featured?: boolean }) {
-  const date = new Date(post.published_at ?? post.created_at).toLocaleDateString('nl-NL', {
+  const date = new Date(post.post_date ?? post.published_at ?? post.created_at).toLocaleDateString('nl-NL', {
     day: 'numeric', month: 'long', year: 'numeric',
   });
   const mins = readingTime(post.content);
@@ -286,11 +287,15 @@ export default function NewsPage() {
   useEffect(() => {
     supabase
       .from('blog_posts')
-      .select('id, title, slug, content, cover_image, published_at, created_at')
+      .select('id, title, slug, content, cover_image, published_at, post_date, created_at')
       .eq('published', true)
-      .order('published_at', { ascending: false })
       .then(({ data }) => {
-        setPosts(data ?? []);
+        const sorted = (data ?? []).sort((a, b) => {
+          const da = new Date(a.post_date ?? a.published_at ?? a.created_at).getTime();
+          const db = new Date(b.post_date ?? b.published_at ?? b.created_at).getTime();
+          return db - da;
+        });
+        setPosts(sorted);
         setLoading(false);
       });
   }, []);
