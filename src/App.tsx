@@ -1324,54 +1324,36 @@ function FacebookWidget() {
 
 function Facebook() {
   return (
-    <section className="relative overflow-hidden bg-forest-950 py-28 px-6">
-
-      {/* Subtle background texture */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_100%,rgba(29,82,38,0.35),transparent)]" />
-      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-forest-700/50 to-transparent" />
-      <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-forest-700/50 to-transparent" />
+    <section className="relative overflow-hidden bg-scout-cream texture-paper py-28 px-6">
 
       <div className="max-w-7xl mx-auto relative z-10">
 
         {/* Section header */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 mb-4">
-            <div className="h-px w-8 bg-forest-600" />
-            <span className="text-[11px] font-semibold text-forest-400 uppercase tracking-[0.2em]">Volg ons op</span>
-            <div className="h-px w-8 bg-forest-600" />
+            <div className="h-px w-8 bg-forest-300" />
+            <span className="text-[11px] font-semibold text-forest-500 uppercase tracking-[0.2em]">Volg ons op</span>
+            <div className="h-px w-8 bg-forest-300" />
           </div>
-          <h2 className="font-display text-white text-4xl md:text-5xl font-bold uppercase leading-none">
+          <h2 className="font-display text-forest-950 text-4xl md:text-5xl font-bold uppercase leading-none">
             Facebook<span className="text-scout-red">.</span>
           </h2>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-start">
 
-          {/* Left: text + CTA — narrower column */}
+          {/* Left: text + CTA */}
           <div className="lg:col-span-2 flex flex-col justify-center lg:pt-4">
-            <p className="text-forest-300 leading-relaxed text-base mb-10">
+            <p className="text-forest-600 leading-relaxed text-base mb-8">
               Blijf op de hoogte van het laatste nieuws, foto's en activiteiten via onze Facebook-pagina. Like ons en mis niets!
             </p>
-
-            {/* Stats row */}
-            <div className="grid grid-cols-2 gap-4 mb-10">
-              {[
-                { label: 'Volgers', value: '800+' },
-                { label: 'Jaar actief', value: '70+' },
-              ].map(({ label, value }) => (
-                <div key={label} className="bg-white/5 border border-white/8 rounded-2xl px-5 py-4">
-                  <p className="font-display text-2xl font-bold text-white">{value}</p>
-                  <p className="text-xs text-forest-400 uppercase tracking-widest mt-0.5">{label}</p>
-                </div>
-              ))}
-            </div>
 
             <div className="flex flex-col gap-3">
               <a
                 href="https://www.facebook.com/ScoutingOldenzaal/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2.5 text-white font-display font-semibold text-sm px-6 py-3.5 rounded-xl tracking-wide uppercase transition-opacity hover:opacity-85 shadow-lg shadow-black/30"
+                className="inline-flex items-center justify-center gap-2.5 text-white font-display font-semibold text-sm px-6 py-3.5 rounded-xl tracking-wide uppercase transition-opacity hover:opacity-85 shadow-md"
                 style={{ background: '#1877F2' }}
               >
                 <div className="w-4 h-4 shrink-0">{FB_SVG}</div>
@@ -1381,16 +1363,16 @@ function Facebook() {
                 href="https://www.facebook.com/ScoutingOldenzaal/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 text-forest-300 font-display font-semibold text-sm px-6 py-3.5 rounded-xl tracking-wide uppercase border border-forest-700 hover:border-forest-500 hover:text-white transition-colors"
+                className="inline-flex items-center justify-center gap-2 text-forest-800 font-display font-semibold text-sm px-6 py-3.5 rounded-xl tracking-wide uppercase border-2 border-forest-200 hover:border-forest-400 transition-colors"
               >
                 Bekijk alle posts
               </a>
             </div>
           </div>
 
-          {/* Right: Facebook embed — wider column */}
+          {/* Right: Facebook embed */}
           <div className="lg:col-span-3 flex justify-center">
-            <div className="w-full max-w-[500px] rounded-2xl overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.5)] ring-1 ring-white/10">
+            <div className="w-full max-w-[500px] rounded-2xl overflow-hidden shadow-xl border border-forest-100">
               <FacebookWidget />
             </div>
           </div>
