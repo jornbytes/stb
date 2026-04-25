@@ -65,9 +65,20 @@ Deno.serve(async (req: Request) => {
     });
 
     if (dbError) {
-      // Roll back: delete auth user if db insert fails
       await adminClient.auth.admin.deleteUser(newUser.user.id);
       return new Response(JSON.stringify({ error: dbError.message }), { status: 500, headers: corsHeaders });
+    }
+
+    // Admins and blogposters need access to the admin panel
+    if (role === "admin" || role === "blogposter") {
+      const { error: adminErr } = await adminClient.from("admin_users").insert({
+        id: newUser.user.id,
+        must_change_password: true,
+      });
+      if (adminErr) {
+        await adminClient.auth.admin.deleteUser(newUser.user.id);
+        return new Response(JSON.stringify({ error: adminErr.message }), { status: 500, headers: corsHeaders });
+      }
     }
 
     return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
