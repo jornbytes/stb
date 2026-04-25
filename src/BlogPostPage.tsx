@@ -240,7 +240,7 @@ export default function BlogPostPage({ slug }: { slug: string }) {
       <AdminTopbar />
 
       {/* Hero */}
-      <div className="relative bg-forest-950 overflow-hidden" style={{ minHeight: '70vh' }}>
+      <div className="relative bg-forest-950 overflow-hidden" style={{ height: '420px' }}>
         {post.cover_image ? (
           <div
             className="absolute inset-0 bg-cover bg-center"
