@@ -2,6 +2,19 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { Upload, Copy, Trash2, Image as ImageIcon, X, Check, Search } from 'lucide-react';
 
+async function apiUpload(files: File[]): Promise<{ filename: string; storage_path: string; public_url: string; mime_type: string; size: number }[]> {
+  const body = new FormData();
+  for (const f of files) body.append('files', f);
+  const res = await fetch('/api/upload', { method: 'POST', body });
+  if (!res.ok) throw new Error(await res.text());
+  const data = await res.json();
+  return data.files;
+}
+
+async function apiDelete(storagePath: string): Promise<void> {
+  await fetch(`/api/upload/${encodeURIComponent(storagePath)}`, { method: 'DELETE' });
+}
+
 type MediaFile = {
   id: string;
   filename: string;
@@ -45,29 +58,13 @@ export default function MediaLibrary({ onSelect, selectable = false }: { onSelec
     setUploading(true);
     setError(null);
 
-    for (const file of selectedFiles) {
-      const ext = file.name.split('.').pop() ?? '';
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-
-      const { error: uploadError } = await supabase.storage.from('media').upload(path, file, {
-        contentType: file.type,
-        upsert: false,
-      });
-
-      if (uploadError) {
-        setError(`Upload mislukt: ${uploadError.message}`);
-        continue;
+    try {
+      const uploaded = await apiUpload(selectedFiles);
+      for (const u of uploaded) {
+        await supabase.from('media_files').insert(u);
       }
-
-      const { data: urlData } = supabase.storage.from('media').getPublicUrl(path);
-
-      await supabase.from('media_files').insert({
-        filename: file.name,
-        storage_path: path,
-        public_url: urlData.publicUrl,
-        mime_type: file.type,
-        size: file.size,
-      });
+    } catch (err) {
+      setError(`Upload mislukt: ${err instanceof Error ? err.message : String(err)}`);
     }
 
     setUploading(false);
@@ -76,7 +73,7 @@ export default function MediaLibrary({ onSelect, selectable = false }: { onSelec
   }
 
   async function handleDelete(file: MediaFile) {
-    await supabase.storage.from('media').remove([file.storage_path]);
+    await apiDelete(file.storage_path);
     await supabase.from('media_files').delete().eq('id', file.id);
     setDeleteId(null);
     setFiles((prev) => prev.filter((f) => f.id !== file.id));
