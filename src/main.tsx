@@ -5,19 +5,18 @@ import AdminApp from './admin/AdminApp.tsx';
 import PageView from './PageView.tsx';
 import BlogPostPage from './BlogPostPage.tsx';
 import NewsPage from './NewsPage.tsx';
+import SiteGate from './SiteGate.tsx';
 import './index.css';
 
 const path = window.location.pathname;
 
-function Root() {
-  if (path.startsWith('/admin')) return <AdminApp />;
-
+function PublicSite() {
   // News overview page
   if (path === '/nieuws' || path === '/nieuws/') return <NewsPage />;
 
   // Blog post detail page
-  const nieuzsMatch = path.match(/^\/nieuws\/(.+?)\/?$/);
-  if (nieuzsMatch) return <BlogPostPage slug={nieuzsMatch[1]} />;
+  const nieuwsMatch = path.match(/^\/nieuws\/(.+?)\/?$/);
+  if (nieuwsMatch) return <BlogPostPage slug={nieuwsMatch[1]} />;
 
   // Any other non-root path → try as a page slug
   if (path !== '/' && !path.startsWith('/assets')) {
@@ -26,6 +25,16 @@ function Root() {
   }
 
   return <App />;
+}
+
+function Root() {
+  if (path.startsWith('/admin')) return <AdminApp />;
+
+  return (
+    <SiteGate>
+      <PublicSite />
+    </SiteGate>
+  );
 }
 
 createRoot(document.getElementById('root')!).render(
