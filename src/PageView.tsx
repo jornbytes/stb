@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import { renderBlocks } from './admin/RichEditor';
-import { ArrowLeft, Lock, Menu, X, ArrowRight, Flame, Users, TreePine, Shield, MapPin, Calendar } from 'lucide-react';
+import { ArrowLeft, Lock, Menu, X, ArrowRight, Flame, Users, TreePine, Shield, MapPin, Calendar, Home, UtensilsCrossed, Tent, Star, ChevronLeft, ChevronRight as ChevronRightIcon } from 'lucide-react';
 import { NavIcon, hasNavIcon } from './lib/navIcon';
 
 type NavItem = {
@@ -454,6 +454,295 @@ function OverOnsPageLayout({ page }: { page: { title: string; seo_title: string;
   );
 }
 
+// ─── Ons Gebouw Page Layout ───────────────────────────────────────────────────
+
+const GEBOUW_FOTOS = [
+  'https://jurwwletlrkjzhovyjxw.supabase.co/storage/v1/object/public/media/1777119540583-3dks8x1ixvr.jpg',
+  'https://jurwwletlrkjzhovyjxw.supabase.co/storage/v1/object/public/media/1777119540329-us38zw5pyva.jpg',
+  'https://jurwwletlrkjzhovyjxw.supabase.co/storage/v1/object/public/media/1777119539958-t09vj1xlgon.jpg',
+  'https://jurwwletlrkjzhovyjxw.supabase.co/storage/v1/object/public/media/1777119539716-q1zi6uaa3zh.jpg',
+  'https://jurwwletlrkjzhovyjxw.supabase.co/storage/v1/object/public/media/1777119539440-0ve119u8yhm.jpg',
+  'https://jurwwletlrkjzhovyjxw.supabase.co/storage/v1/object/public/media/1777119538526-u34o263dxfj.jpg',
+  'https://jurwwletlrkjzhovyjxw.supabase.co/storage/v1/object/public/media/1777119538107-aanom4il1qp.jpg',
+];
+
+const GEBOUW_FACILITEITEN = [
+  {
+    icon: <Home className="w-6 h-6" />,
+    title: 'Grote zaal',
+    text: 'De centrale ruimte voor spel, opkomsten en groepsbijeenkomsten. Ruim genoeg voor de grootste groepen.',
+  },
+  {
+    icon: <UtensilsCrossed className="w-6 h-6" />,
+    title: 'Keuken',
+    text: 'Samen koken tijdens bijzondere avonden en kampen. Een vertrouwde plek voor gezelligheid.',
+  },
+  {
+    icon: <Users className="w-6 h-6" />,
+    title: 'Vergaderruimtes',
+    text: 'Aparte ruimtes voor de oudere speltakken zoals Explorers en de Stam voor vergaderingen en planningen.',
+  },
+  {
+    icon: <Tent className="w-6 h-6" />,
+    title: 'Buitenterrein',
+    text: 'Het terrein rondom het gebouw is perfect voor buitenactiviteiten, spelletjes en het oefenen van scoutingvaardigheden.',
+  },
+  {
+    icon: <Star className="w-6 h-6" />,
+    title: 'Creatieve ruimtes',
+    text: 'Plekken om te knutselen, te leren en te plannen. Ideaal voor uitlegmomenten en creatieve projecten.',
+  },
+  {
+    icon: <Shield className="w-6 h-6" />,
+    title: 'Veilige omgeving',
+    text: 'Een vertrouwde thuisbasis waar iedereen zich welkom voelt en jongeren veilig kunnen groeien.',
+  },
+];
+
+function GebouwLightbox({ photos, startIndex, onClose }: { photos: string[]; startIndex: number; onClose: () => void }) {
+  const [idx, setIdx] = useState(startIndex);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft') setIdx(i => (i - 1 + photos.length) % photos.length);
+      if (e.key === 'ArrowRight') setIdx(i => (i + 1) % photos.length);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [photos.length, onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-sm flex items-center justify-center px-4"
+      onClick={onClose}
+    >
+      <button
+        onClick={(e) => { e.stopPropagation(); setIdx(i => (i - 1 + photos.length) % photos.length); }}
+        className="absolute left-4 md:left-8 text-white/60 hover:text-white transition p-2 z-10"
+      >
+        <ChevronLeft className="w-8 h-8" />
+      </button>
+      <img
+        src={photos[idx]}
+        alt=""
+        className="max-h-[85vh] max-w-[90vw] rounded-xl shadow-2xl object-contain"
+        onClick={e => e.stopPropagation()}
+      />
+      <button
+        onClick={(e) => { e.stopPropagation(); setIdx(i => (i + 1) % photos.length); }}
+        className="absolute right-4 md:right-8 text-white/60 hover:text-white transition p-2 z-10"
+      >
+        <ChevronRightIcon className="w-8 h-8" />
+      </button>
+      <button onClick={onClose} className="absolute top-5 right-5 text-white/50 hover:text-white transition">
+        <X className="w-6 h-6" />
+      </button>
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/30 text-sm">
+        {idx + 1} / {photos.length}
+      </div>
+    </div>
+  );
+}
+
+function OnsGebouwPageLayout({ page }: { page: { title: string; seo_title: string; hero_subtitle: string; hero_image: string; slug: string } }) {
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const heroImg = page.hero_image || GEBOUW_FOTOS[0];
+
+  return (
+    <div className="min-h-screen bg-forest-950">
+      <AdminTopbar pageSlug={page.slug} />
+      <title>{page.seo_title || page.title}</title>
+      <NavBar />
+
+      {lightboxIdx !== null && (
+        <GebouwLightbox photos={GEBOUW_FOTOS} startIndex={lightboxIdx} onClose={() => setLightboxIdx(null)} />
+      )}
+
+      {/* ── Hero ──────────────────────────────────────────────────────────── */}
+      <div className="relative overflow-hidden" style={{ minHeight: '600px', display: 'flex', flexDirection: 'column' }}>
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${heroImg})`, animation: 'heroZoom 20s ease-out forwards', transform: 'scale(1.06)' }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-forest-950/50 via-forest-950/20 to-forest-950" />
+        <div className="absolute inset-0 bg-gradient-to-r from-forest-950/70 via-transparent to-transparent" />
+
+        {/* Grain */}
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundSize: '200px 200px' }}
+        />
+
+        {/* Pine silhouettes */}
+        <div className="absolute bottom-0 left-0 right-0 pointer-events-none overflow-hidden opacity-[0.08]">
+          <svg viewBox="0 0 1440 120" className="w-full" preserveAspectRatio="xMidYMax slice">
+            {[0,130,260,390,520,650,780,910,1040,1170,1300].map((x, i) => (
+              <polygon key={i} points={`${x},120 ${x+45},60 ${x+25},72 ${x+45},30 ${x+65},72 ${x+85},60 ${x+90},120`} fill="white" />
+            ))}
+          </svg>
+        </div>
+
+        <div className="relative z-10 flex-1 flex flex-col justify-end px-6 pb-20 pt-44 max-w-7xl mx-auto w-full">
+          <div
+            className="inline-flex items-center gap-2 bg-amber-500/15 border border-amber-500/25 text-amber-400 font-medium text-xs tracking-widest uppercase px-4 py-2 rounded-full mb-5 w-fit"
+            style={{ animation: 'fadeSlideUp 0.5s 0.1s ease both' }}
+          >
+            <MapPin className="w-3.5 h-3.5" /> Potskampstraat · Oldenzaal
+          </div>
+          <h1
+            className="font-display font-bold text-white uppercase leading-none mb-5"
+            style={{ fontSize: 'clamp(3rem, 9vw, 6.5rem)', letterSpacing: '-0.02em', animation: 'fadeSlideUp 0.6s 0.15s ease both' }}
+          >
+            {page.title}<span className="text-scout-red">.</span>
+          </h1>
+          <p
+            className="text-white/55 text-lg max-w-xl leading-relaxed font-light"
+            style={{ animation: 'fadeSlideUp 0.6s 0.25s ease both' }}
+          >
+            {page.hero_subtitle || 'De thuisbasis van Scouting Titus Brandsma — waar elk avontuur begint.'}
+          </p>
+        </div>
+      </div>
+
+      {/* ── Intro ─────────────────────────────────────────────────────────── */}
+      <div className="relative bg-forest-950 px-6 py-20">
+        <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-14 items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 font-medium text-xs tracking-widest uppercase px-4 py-2 rounded-full mb-6">
+              Ons hart
+            </div>
+            <h2 className="font-display text-white text-4xl md:text-5xl font-bold uppercase leading-tight mb-6">
+              Meer dan vier muren
+            </h2>
+            <p className="text-white/65 leading-relaxed mb-5">
+              Ons clubgebouw is de thuisbasis van Scouting Titus Brandsma — een groep die al meer dan 70 jaar bestaat. Het gebouw vormt het hart van alles wat wij doen.
+            </p>
+            <p className="text-white/45 leading-relaxed text-sm">
+              Hier komen we samen voor opkomsten, trainingen, vergaderingen en activiteiten. Een plek waar kinderen en jongeren vrienden maken en zich ontwikkelen in een veilige en vertrouwde omgeving.
+            </p>
+          </div>
+
+          {/* Stacked mini photos */}
+          <div className="relative h-72 md:h-80">
+            {GEBOUW_FOTOS.slice(1, 4).map((src, i) => (
+              <div
+                key={src}
+                onClick={() => setLightboxIdx(i + 1)}
+                className="absolute rounded-xl overflow-hidden shadow-2xl border-2 border-forest-800 cursor-pointer hover:scale-[1.03] transition-transform duration-300"
+                style={{
+                  width: '65%',
+                  aspectRatio: '4/3',
+                  top: `${i * 20}px`,
+                  left: `${i * 18}%`,
+                  zIndex: i + 1,
+                  transform: `rotate(${[-2, 1.5, -1][i]}deg)`,
+                }}
+              >
+                <img src={src} alt="" className="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Faciliteiten ──────────────────────────────────────────────────── */}
+      <div className="bg-scout-cream px-6 py-20">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 bg-forest-800/10 border border-forest-700/20 text-forest-700 font-medium text-xs tracking-widest uppercase px-4 py-2 rounded-full mb-4">
+              Wat je vindt
+            </div>
+            <h2 className="font-display text-forest-950 text-3xl md:text-4xl font-bold uppercase">Faciliteiten</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+            {GEBOUW_FACILITEITEN.map((f) => (
+              <div key={f.title} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm group hover:-translate-y-1 transition-all duration-300">
+                <div className="w-11 h-11 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 mb-4 group-hover:scale-110 transition-transform">
+                  {f.icon}
+                </div>
+                <h3 className="font-display text-forest-950 font-bold text-sm uppercase tracking-wide mb-2">{f.title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">{f.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Foto galerij ──────────────────────────────────────────────────── */}
+      <div className="bg-forest-950 px-6 py-20">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 font-medium text-xs tracking-widest uppercase px-4 py-2 rounded-full mb-4">
+              Sfeer
+            </div>
+            <h2 className="font-display text-white text-3xl md:text-4xl font-bold uppercase">Bekijk het gebouw</h2>
+          </div>
+
+          {/* Mosaic grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 auto-rows-[180px]">
+            {GEBOUW_FOTOS.map((src, i) => (
+              <div
+                key={src}
+                onClick={() => setLightboxIdx(i)}
+                className={`relative rounded-xl overflow-hidden cursor-pointer group
+                  ${i === 0 ? 'md:col-span-2 md:row-span-2' : ''}
+                  ${i === 3 ? 'md:col-span-2' : ''}
+                `}
+              >
+                <img
+                  src={src}
+                  alt=""
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-forest-950/0 group-hover:bg-forest-950/25 transition-colors duration-300" />
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                    <Star className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── CTA ───────────────────────────────────────────────────────────── */}
+      <div className="bg-forest-950 border-t border-forest-900 px-6 py-20 text-center">
+        <div className="max-w-xl mx-auto">
+          <h2 className="font-display text-white text-3xl font-bold uppercase mb-4">Kom langs!</h2>
+          <p className="text-white/45 mb-8 text-sm leading-relaxed">
+            Wil je ons gebouw zelf bekijken of meer weten over scouting? Kom gerust een kijkje nemen tijdens een van onze opkomsten.
+          </p>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <a
+              href="/contact"
+              className="inline-flex items-center gap-2 bg-scout-red hover:bg-scout-darkred text-white font-display font-semibold text-sm px-8 py-4 rounded-full tracking-widest uppercase transition-colors duration-200 group"
+            >
+              Neem contact op
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            </a>
+            <a
+              href="/#lid-worden"
+              className="inline-flex items-center gap-2 border border-white/20 hover:border-white/50 text-white/70 hover:text-white font-display font-semibold text-sm px-8 py-4 rounded-full tracking-widest uppercase transition-colors duration-200"
+            >
+              Lid worden
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-forest-950 px-6 pb-10 flex justify-center">
+        <a href="/" className="inline-flex items-center gap-2 text-sm font-medium text-white/30 hover:text-white/60 transition group">
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+          Terug naar home
+        </a>
+      </div>
+
+      <Footer />
+    </div>
+  );
+}
+
 // ─── PageView ─────────────────────────────────────────────────────────────────
 
 export default function PageView({ slug }: { slug: string }) {
@@ -543,9 +832,12 @@ export default function PageView({ slug }: { slug: string }) {
     );
   }
 
-  // Special layout for Over Ons page
   if (slug === 'over-ons') {
     return <OverOnsPageLayout page={page} />;
+  }
+
+  if (slug === 'ons-gebouw') {
+    return <OnsGebouwPageLayout page={page} />;
   }
 
   return (
