@@ -3,6 +3,7 @@ import { supabase } from './lib/supabase';
 import { renderBlocks } from './admin/RichEditor';
 import { ArrowLeft, Menu, X, ArrowRight, Calendar, Clock } from 'lucide-react';
 import AdminTopbar from './admin/AdminTopbar';
+import { NavIcon, hasNavIcon } from './lib/navIcon';
 
 type Post = {
   id: string;
@@ -21,14 +22,15 @@ type NavItem = {
   label: string;
   href: string;
   open_in_new_tab: boolean;
+  icon: string;
 };
 
 const FALLBACK_LINKS: NavItem[] = [
-  { id: '1', label: 'Speltakken', href: '/#speltakken', open_in_new_tab: false },
-  { id: '2', label: 'Over ons',   href: '/#over-ons',   open_in_new_tab: false },
-  { id: '3', label: 'Ons gebouw', href: '/#gebouw',     open_in_new_tab: false },
-  { id: '4', label: 'Nieuws',     href: '/#nieuws',     open_in_new_tab: false },
-  { id: '5', label: 'Contact',    href: '/#contact',    open_in_new_tab: false },
+  { id: '1', label: 'Speltakken', href: '/#speltakken', open_in_new_tab: false, icon: '' },
+  { id: '2', label: 'Over ons',   href: '/#over-ons',   open_in_new_tab: false, icon: '' },
+  { id: '3', label: 'Ons gebouw', href: '/#gebouw',     open_in_new_tab: false, icon: '' },
+  { id: '4', label: 'Nieuws',     href: '/#nieuws',     open_in_new_tab: false, icon: '' },
+  { id: '5', label: 'Contact',    href: '/#contact',    open_in_new_tab: false, icon: '' },
 ];
 
 function NavBar() {
@@ -81,9 +83,12 @@ function NavBar() {
               href={l.href}
               target={l.open_in_new_tab ? '_blank' : undefined}
               rel={l.open_in_new_tab ? 'noopener noreferrer' : undefined}
+              title={hasNavIcon(l.icon) ? l.label : undefined}
               className="text-white/80 hover:text-white text-sm font-medium tracking-wide transition-colors"
             >
-              {l.label}
+              {hasNavIcon(l.icon)
+                ? <NavIcon icon={l.icon} className="w-5 h-5" />
+                : l.label}
             </a>
           ))}
         </nav>

@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import AdminTopbar from './admin/AdminTopbar';
+import { NavIcon, hasNavIcon } from './lib/navIcon';
 
 // ─── Homepage content from DB ────────────────────────────────────────────────
 
@@ -364,6 +365,7 @@ type NavItem = {
   label: string;
   href: string;
   open_in_new_tab: boolean;
+  icon: string;
 };
 
 const FALLBACK_LINKS: NavItem[] = [
@@ -427,9 +429,12 @@ function NavBar({ onLidWorden }: { onLidWorden: () => void }) {
               href={l.href}
               target={l.open_in_new_tab ? '_blank' : undefined}
               rel={l.open_in_new_tab ? 'noopener noreferrer' : undefined}
+              title={hasNavIcon(l.icon) ? l.label : undefined}
               className="text-white/80 hover:text-white text-sm font-medium tracking-wide transition-colors"
             >
-              {l.label}
+              {hasNavIcon(l.icon)
+                ? <NavIcon icon={l.icon} className="w-5 h-5" />
+                : l.label}
             </a>
           ))}
         </nav>

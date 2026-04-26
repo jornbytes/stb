@@ -3,7 +3,19 @@ import { supabase } from '../lib/supabase';
 import {
   GripVertical, Plus, Trash2, ExternalLink, FileText,
   Save, X, ChevronDown, Globe, Link,
+  BookOpen, HardDrive, Mail, Star, Home, Users,
 } from 'lucide-react';
+
+export const NAV_ICONS: { value: string; label: string; icon: React.ElementType }[] = [
+  { value: '',            label: 'Geen (tekst)',   icon: FileText },
+  { value: 'home',        label: 'Home',           icon: Home },
+  { value: 'book',        label: 'SOL / Boek',     icon: BookOpen },
+  { value: 'drive',       label: 'Google Drive',   icon: HardDrive },
+  { value: 'mail',        label: 'Mail',           icon: Mail },
+  { value: 'users',       label: 'Leden',          icon: Users },
+  { value: 'star',        label: 'Ster',           icon: Star },
+  { value: 'external',    label: 'Externe link',   icon: ExternalLink },
+];
 
 type NavItem = {
   id: string;
@@ -13,6 +25,7 @@ type NavItem = {
   href: string;
   position: number;
   open_in_new_tab: boolean;
+  icon: string;
 };
 
 type Page = {
@@ -22,16 +35,17 @@ type Page = {
 };
 
 type EditState = {
-  id: string | null; // null = new item
+  id: string | null;
   label: string;
   type: 'page' | 'external';
   page_id: string;
   href: string;
   open_in_new_tab: boolean;
+  icon: string;
 };
 
 function emptyEdit(): EditState {
-  return { id: null, label: '', type: 'external', page_id: '', href: '', open_in_new_tab: false };
+  return { id: null, label: '', type: 'external', page_id: '', href: '', open_in_new_tab: false, icon: '' };
 }
 
 export default function NavMenu() {
@@ -130,6 +144,7 @@ export default function NavMenu() {
           page_id: edit.type === 'page' ? edit.page_id || null : null,
           href: resolvedHref,
           open_in_new_tab: edit.open_in_new_tab,
+          icon: edit.icon,
         })
         .eq('id', edit.id)
         .select()
@@ -146,6 +161,7 @@ export default function NavMenu() {
           page_id: edit.type === 'page' ? edit.page_id || null : null,
           href: resolvedHref,
           open_in_new_tab: edit.open_in_new_tab,
+          icon: edit.icon,
           position,
         })
         .select()
@@ -165,6 +181,7 @@ export default function NavMenu() {
       page_id: item.page_id ?? '',
       href: item.href,
       open_in_new_tab: item.open_in_new_tab,
+      icon: item.icon ?? '',
     });
   }
 
@@ -392,6 +409,30 @@ export default function NavMenu() {
                   </p>
                 </div>
               )}
+
+              {/* Icon picker */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1.5">Icoon (optioneel)</label>
+                <p className="text-[11px] text-gray-400 mb-2">Als je een icoon kiest, wordt dit getoond in de desktop navigatie i.p.v. de tekst.</p>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {NAV_ICONS.map(({ value, label, icon: Icon }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setEdit(s => s && ({ ...s, icon: value }))}
+                      title={label}
+                      className={`flex flex-col items-center gap-1 px-2 py-2 rounded-lg border text-xs transition-all ${
+                        edit.icon === value
+                          ? 'border-forest-500 bg-forest-50 text-forest-700'
+                          : 'border-gray-200 text-gray-400 hover:border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span className="truncate w-full text-center leading-tight" style={{ fontSize: '9px' }}>{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               {/* New tab */}
               <label className="flex items-center gap-3 cursor-pointer">
