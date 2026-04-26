@@ -379,7 +379,7 @@ function PrivateModeSection() {
         <div className="flex items-center justify-between gap-6">
           <div>
             <p className="text-sm font-medium text-gray-800">
-              {isPrivate ? 'Privémodus ingeschakeld' : 'Website openbaar'}
+              {isPrivate ? 'Website is privé (inlogscherm actief)' : 'Website is openbaar'}
             </p>
             <p className="text-xs text-gray-400 mt-1">
               {isPrivate
@@ -387,21 +387,24 @@ function PrivateModeSection() {
                 : 'Iedereen kan de website bezoeken zonder in te loggen.'}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={handleToggle}
-            disabled={saving || loading}
-            className={`relative shrink-0 w-12 h-6 rounded-full transition-colors duration-200 focus:outline-none disabled:opacity-50 ${
-              isPrivate ? 'bg-gray-300' : 'bg-green-500'
-            }`}
-            aria-pressed={!isPrivate}
-          >
-            <span
-              className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${
-                isPrivate ? 'translate-x-0' : 'translate-x-6'
+          <div className="flex flex-col items-center gap-1 shrink-0">
+            <button
+              type="button"
+              onClick={handleToggle}
+              disabled={saving || loading}
+              className={`relative w-12 h-6 rounded-full transition-colors duration-200 focus:outline-none disabled:opacity-50 ${
+                isPrivate ? 'bg-gray-300' : 'bg-green-500'
               }`}
-            />
-          </button>
+              aria-pressed={!isPrivate}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${
+                  isPrivate ? 'translate-x-0' : 'translate-x-6'
+                }`}
+              />
+            </button>
+            <span className="text-[10px] text-gray-400">{isPrivate ? 'Privé' : 'Openbaar'}</span>
+          </div>
         </div>
 
         {status === 'saved' && (
