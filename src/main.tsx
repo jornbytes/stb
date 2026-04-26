@@ -6,6 +6,7 @@ import PageView from './PageView.tsx';
 import BlogPostPage from './BlogPostPage.tsx';
 import NewsPage from './NewsPage.tsx';
 import ContactPage from './ContactPage.tsx';
+import MeekijkenPage from './MeekijkenPage.tsx';
 import './index.css';
 
 const path = window.location.pathname;
@@ -20,6 +21,9 @@ function PublicSite() {
 
   // Contact page
   if (path === '/contact' || path === '/contact/') return <ContactPage />;
+
+  // Meekijken page (dedicated with signup form)
+  if (path === '/meekijken' || path === '/meekijken/') return <MeekijkenPage />;
 
   // Any other non-root path → try as a page slug
   if (path !== '/' && !path.startsWith('/assets')) {
