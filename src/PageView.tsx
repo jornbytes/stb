@@ -2,6 +2,21 @@ import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import { renderBlocks } from './admin/RichEditor';
 import { ArrowLeft, Lock, Menu, X, ArrowRight } from 'lucide-react';
+
+type NavItem = {
+  id: string;
+  label: string;
+  href: string;
+  open_in_new_tab: boolean;
+};
+
+const FALLBACK_LINKS: NavItem[] = [
+  { id: '1', label: 'Speltakken', href: '/#speltakken', open_in_new_tab: false },
+  { id: '2', label: 'Over ons',   href: '/#over-ons',   open_in_new_tab: false },
+  { id: '3', label: 'Ons gebouw', href: '/#gebouw',     open_in_new_tab: false },
+  { id: '4', label: 'Nieuws',     href: '/#nieuws',     open_in_new_tab: false },
+  { id: '5', label: 'Contact',    href: '/#contact',    open_in_new_tab: false },
+];
 import AdminTopbar from './admin/AdminTopbar';
 
 type Page = {
@@ -23,6 +38,7 @@ type Page = {
 function NavBar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [links, setLinks] = useState<NavItem[]>(FALLBACK_LINKS);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -30,13 +46,20 @@ function NavBar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const links = [
-    { href: '/#speltakken', label: 'Speltakken' },
-    { href: '/#over-ons', label: 'Over ons' },
-    { href: '/#gebouw', label: 'Ons gebouw' },
-    { href: '/#nieuws', label: 'Nieuws' },
-    { href: '/#contact', label: 'Contact' },
-  ];
+  useEffect(() => {
+    supabase
+      .from('nav_items')
+      .select('id, label, href, open_in_new_tab')
+      .order('position')
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setLinks(data.map(l => ({
+            ...l,
+            href: l.href.startsWith('#') ? `/${l.href}` : l.href,
+          })));
+        }
+      });
+  }, []);
 
   return (
     <header
@@ -56,7 +79,13 @@ function NavBar() {
 
         <nav className="hidden md:flex items-center gap-7">
           {links.map((l) => (
-            <a key={l.href} href={l.href} className="text-white/80 hover:text-white text-sm font-medium tracking-wide transition-colors">
+            <a
+              key={l.id}
+              href={l.href}
+              target={l.open_in_new_tab ? '_blank' : undefined}
+              rel={l.open_in_new_tab ? 'noopener noreferrer' : undefined}
+              className="text-white/80 hover:text-white text-sm font-medium tracking-wide transition-colors"
+            >
               {l.label}
             </a>
           ))}
@@ -79,7 +108,14 @@ function NavBar() {
         <div className="md:hidden bg-forest-950 border-t border-forest-800">
           <nav className="flex flex-col px-6 py-4 gap-4">
             {links.map((l) => (
-              <a key={l.href} href={l.href} onClick={() => setOpen(false)} className="text-white/80 hover:text-white font-medium py-1 transition-colors">
+              <a
+                key={l.id}
+                href={l.href}
+                target={l.open_in_new_tab ? '_blank' : undefined}
+                rel={l.open_in_new_tab ? 'noopener noreferrer' : undefined}
+                onClick={() => setOpen(false)}
+                className="text-white/80 hover:text-white font-medium py-1 transition-colors"
+              >
                 {l.label}
               </a>
             ))}
