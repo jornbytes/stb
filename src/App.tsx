@@ -1760,7 +1760,10 @@ export default function App() {
   useEffect(() => {
     const hash = window.location.hash.slice(1);
     if (!hash) return;
-    // Wait for the page to render before scrolling
+    if (hash === 'lid-worden') {
+      setShowPopup(true);
+      return;
+    }
     const tryScroll = (attempts = 0) => {
       const el = document.getElementById(hash);
       if (el) {
