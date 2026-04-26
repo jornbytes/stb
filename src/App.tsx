@@ -823,109 +823,155 @@ function OverOns({ content }: { content: SiteSettings }) {
   const text1 = content.over_ons_text_1 || 'Scouting Titus Brandsma is een scoutinggroep in het hart van Oldenzaal. Met ruim 40 actieve vrijwilligers bieden wij elke week inspirerende activiteiten voor kinderen en jongeren van 5 tot 21 jaar en ouder.';
   const text2 = content.over_ons_text_2 || 'Onze roots gaan terug tot vlak na de Tweede Wereldoorlog. Door de jaren heen groeide onze groep uit tot de hechte scoutingfamilie die we vandaag de dag zijn.';
   const photo = content.over_ons_photo || '/jubileum_groepsfoto.jpg';
+
+  const stats = [
+    { value: '70+', label: 'Jaar', sub: 'Avontuur & traditie' },
+    { value: '40+', label: 'Vrijwilligers', sub: 'Elke week klaar' },
+    { value: '6', label: 'Speltakken', sub: 'Van 5 t/m 21 jaar' },
+    { value: '1945', label: 'Opgericht', sub: 'Na de oorlog' },
+  ];
+
   return (
-    <section id="over-ons" className="relative bg-forest-950 texture-wood overflow-hidden pt-10 pb-0 px-6">
+    <section id="over-ons" className="relative bg-forest-950 overflow-hidden">
 
-      {/* Subtle star field */}
-      <div className="absolute inset-0 pointer-events-none" aria-hidden>
-        {[
-          [120,40],[340,80],[580,30],[820,60],[1100,25],[1300,70],[200,120],[700,100],[950,45],[1200,110],
-          [60,160],[450,140],[870,155],[1380,130],[310,200],[670,180],[1050,190],[1320,210],
-        ].map(([x,y],i) => (
+      {/* ── Full-bleed hero photo strip ─────────────────────────────────────── */}
+      <div className="relative h-[55vh] min-h-[380px] max-h-[600px] overflow-hidden">
+        <img
+          src={photo}
+          alt="Scouting Titus Brandsma groepsfoto"
+          className="w-full h-full object-cover object-top"
+          style={{ transform: 'scale(1.04)', animation: 'heroZoom 20s ease-out forwards' }}
+        />
+        {/* Dark gradient overlays */}
+        <div className="absolute inset-0 bg-gradient-to-b from-forest-950/50 via-transparent to-forest-950" />
+        <div className="absolute inset-0 bg-gradient-to-r from-forest-950/60 via-transparent to-forest-950/20" />
+
+        {/* Scout-rope divider top */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-orange-500/50 to-transparent" />
+
+        {/* Badge overlaid on photo */}
+        <div className="absolute top-8 right-8 md:top-12 md:right-12 z-20">
           <div
-            key={i}
-            className="absolute rounded-full bg-white"
-            style={{
-              left: x, top: y,
-              width: i % 3 === 0 ? 2 : 1.5,
-              height: i % 3 === 0 ? 2 : 1.5,
-              opacity: 0.15 + (i % 4) * 0.07,
-              animation: `glowPulse ${1.5 + (i % 5) * 0.4}s ease-in-out infinite`,
-              animationDelay: `${(i * 0.27) % 3}s`,
-            }}
-          />
-        ))}
-      </div>
-
-      <div className="max-w-7xl mx-auto relative z-10">
-
-        {/* Top: campfire hero row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center pb-20 pt-14">
-          <div>
-            <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 text-orange-400 font-medium text-xs tracking-widest uppercase px-4 py-2 rounded-full mb-6">
-              Over ons
-            </div>
-            <h2 className="font-display text-white text-5xl md:text-6xl font-bold uppercase leading-[1.05] mb-8">
-              {title}
-            </h2>
-            <p className="text-white/70 leading-relaxed mb-5">
-              {text1}
-            </p>
-            <p className="text-white/60 leading-relaxed mb-10 text-sm">
-              {text2}
-            </p>
-
-            <div className="grid grid-cols-3 gap-4">
-              {[
-                { icon: <Users className="w-5 h-5" />, title: 'Gemeenschap', text: 'Vriendschappen voor het leven.' },
-                { icon: <TreePine className="w-5 h-5" />, title: 'Natuur', text: 'De natuur is onze tweede thuis.' },
-                { icon: <Heart className="w-5 h-5" />, title: 'Vrijwilligers', text: 'Elke week klaar voor de jeugd.' },
-              ].map((v) => (
-                <div key={v.title} className="bg-forest-900/80 backdrop-blur rounded-xl p-4 border border-forest-800 hover:border-orange-500/30 hover:bg-forest-900 transition-all group">
-                  <div className="text-orange-400 mb-2.5 group-hover:scale-110 transition-transform">{v.icon}</div>
-                  <div className="font-display text-white font-semibold text-xs uppercase tracking-wide mb-1.5">{v.title}</div>
-                  <p className="text-white/40 text-[11px] leading-relaxed">{v.text}</p>
-                </div>
-              ))}
-            </div>
+            className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-scout-red border-4 border-scout-darkred
+              flex flex-col items-center justify-center shadow-2xl badge-wobble"
+          >
+            <span className="font-display text-white text-3xl font-bold leading-none">70</span>
+            <span className="font-display text-white/80 text-[9px] uppercase tracking-widest leading-tight mt-0.5">jaar</span>
           </div>
+        </div>
 
-          {/* Campfire + photo stack */}
-          <div className="relative flex flex-col items-center">
-            {/* Photo */}
-            <div className="relative w-full">
-              <div
-                className="rounded-2xl overflow-hidden aspect-[4/5] shadow-2xl border-4 border-forest-800"
-                style={{ transform: 'rotate(1.5deg)' }}
-              >
-                <img
-                  src={photo}
-                  alt="Scouting Titus Brandsma groepsfoto"
-                  className="w-full h-full object-cover object-top"
-                />
-                {/* Orange campfire glow overlay at bottom */}
-                <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-orange-900/40 to-transparent" />
-              </div>
+        {/* Campfire at bottom-center */}
+        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 z-20 drop-shadow-2xl">
+          <Campfire size={140} />
+        </div>
+        <div
+          className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-56 h-16 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse, rgba(255,107,0,0.4) 0%, transparent 70%)' }}
+        />
 
-              {/* Campfire sitting at bottom of photo */}
-              <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 z-20 drop-shadow-2xl">
-                <Campfire size={160} />
-              </div>
-
-              {/* Glow beneath campfire */}
-              <div
-                className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-48 h-12 rounded-full glow pointer-events-none"
-                style={{ background: 'radial-gradient(ellipse, rgba(255,107,0,0.35) 0%, transparent 70%)' }}
-              />
-            </div>
-
-            {/* 70 jaar stamp */}
-            <div
-              className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-scout-red border-4 border-scout-darkred
-                flex flex-col items-center justify-center shadow-2xl badge-wobble z-30"
-            >
-              <span className="font-display text-white text-2xl font-bold leading-none">70</span>
-              <span className="font-display text-white/80 text-[8px] uppercase tracking-widest leading-none">jaar</span>
-            </div>
-          </div>
+        {/* Decorative pines at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 pointer-events-none overflow-hidden opacity-[0.1]">
+          <svg viewBox="0 0 1440 90" className="w-full" preserveAspectRatio="xMidYMax slice">
+            {[0,140,280,420,560,700,840,980,1120,1260,1380].map((x, i) => (
+              <polygon key={i} points={`${x+5},90 ${x+45},38 ${x+28},52 ${x+45},10 ${x+62},52 ${x+85},38 ${x+90},90`} fill="white" />
+            ))}
+          </svg>
         </div>
       </div>
 
-      {/* Campfire glow on section floor */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-96 h-48 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse at 50% 100%, rgba(255,107,0,0.12) 0%, transparent 70%)' }}
-      />
+      {/* ── Content below photo ─────────────────────────────────────────────── */}
+      <div className="relative z-10 px-6 pt-16 pb-0">
 
+        {/* Subtle star field */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+          {[
+            [120,60],[340,100],[580,50],[820,80],[1100,40],[1300,90],[200,160],[700,130],[950,70],[1200,150],
+            [60,220],[450,190],[870,210],[1380,180],
+          ].map(([x,y],i) => (
+            <div
+              key={i}
+              className="absolute rounded-full bg-white"
+              style={{
+                left: x, top: y,
+                width: i % 3 === 0 ? 2 : 1.5,
+                height: i % 3 === 0 ? 2 : 1.5,
+                opacity: 0.12 + (i % 4) * 0.06,
+                animation: `glowPulse ${1.5 + (i % 5) * 0.4}s ease-in-out infinite`,
+                animationDelay: `${(i * 0.27) % 3}s`,
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
+
+          {/* ── Stats strip ─────────────────────────────────────────────────── */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-forest-800/50 rounded-2xl overflow-hidden border border-forest-800 mb-20">
+            {stats.map((s, i) => (
+              <div
+                key={s.label}
+                className={`bg-forest-900/70 backdrop-blur px-6 py-6 text-center group hover:bg-forest-800/80 transition-colors ${i === 0 ? 'rounded-tl-2xl rounded-bl-2xl' : ''} ${i === stats.length - 1 ? 'rounded-tr-2xl rounded-br-2xl' : ''}`}
+              >
+                <div className="font-display text-4xl font-bold text-orange-400 leading-none mb-1 group-hover:scale-105 transition-transform inline-block">{s.value}</div>
+                <div className="font-display text-white text-xs uppercase tracking-widest font-semibold mb-0.5">{s.label}</div>
+                <div className="text-white/35 text-[11px]">{s.sub}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Scroll of text with decorative rope border ──────────────────── */}
+          <div className="relative max-w-4xl mx-auto mb-20">
+            {/* Left accent */}
+            <div className="absolute left-0 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-transparent via-orange-500/60 to-transparent hidden md:block" />
+            <div className="md:pl-10">
+              <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 text-orange-400 font-medium text-xs tracking-widest uppercase px-4 py-2 rounded-full mb-6">
+                Over ons
+              </div>
+              <h2 className="font-display text-white text-4xl md:text-5xl lg:text-6xl font-bold uppercase leading-[1.05] mb-8">
+                {title}<span className="text-scout-red">.</span>
+              </h2>
+
+              <div className="grid md:grid-cols-2 gap-8 mb-10">
+                <p className="text-white/75 leading-relaxed text-base">
+                  {text1}
+                </p>
+                <p className="text-white/55 leading-relaxed text-sm border-l border-forest-800 pl-6 md:pl-8">
+                  {text2}
+                </p>
+              </div>
+
+              {/* Value cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {[
+                  { icon: <Users className="w-6 h-6" />, title: 'Gemeenschap', text: 'Vriendschappen die een leven lang meegaan, gesmeed rond het kampvuur.' },
+                  { icon: <TreePine className="w-6 h-6" />, title: 'Natuur', text: 'Bossen, velden en rivieren zijn onze speeltuin en ons klaslokaal.' },
+                  { icon: <Heart className="w-6 h-6" />, title: 'Vrijwilligers', text: 'Meer dan 40 gepassioneerde leiders die elke week klaarstaan voor de jeugd.' },
+                ].map((v) => (
+                  <div
+                    key={v.title}
+                    className="relative bg-forest-900/60 backdrop-blur rounded-2xl p-5 border border-forest-800 hover:border-orange-500/40 transition-all group overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-orange-500/0 to-orange-500/0 group-hover:from-orange-500/5 group-hover:to-transparent transition-all duration-500" />
+                    <div className="relative z-10">
+                      <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 mb-4 group-hover:scale-110 transition-transform">
+                        {v.icon}
+                      </div>
+                      <div className="font-display text-white font-bold text-sm uppercase tracking-wide mb-2">{v.title}</div>
+                      <p className="text-white/45 text-xs leading-relaxed">{v.text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Bottom campfire floor glow */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-40 pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse at 50% 100%, rgba(255,107,0,0.10) 0%, transparent 70%)' }}
+      />
     </section>
   );
 }
