@@ -260,9 +260,10 @@ function LidWordenPopup({ onClose, content }: { onClose: () => void; content: Si
               >
                 <option value="">Kies een speltak (of weet ik nog niet)</option>
                 {[0,1,2,3,4,5].map((i) => {
-                  const naam = content[`speltak_${i}_naam`] || ['Bevers','Welpen','Scouts','Verkenners','Explorers','Stam'][i];
-                  const leeftijd = content[`speltak_${i}_leeftijd`] || ['5–7','7–11','11–15','14–17','17–21','21+'][i];
-                  return <option key={i} value={naam}>{naam} ({leeftijd})</option>;
+                  const naam = content[`speltak_${i}_naam`];
+                  const leeftijd = content[`speltak_${i}_leeftijd`];
+                  if (!naam) return null;
+                  return <option key={i} value={naam}>{naam}{leeftijd ? ` (${leeftijd})` : ''}</option>;
                 })}
               </select>
             </div>
@@ -729,10 +730,11 @@ function Speltakken({ content }: { content: SiteSettings }) {
     { naam: 'Stam',       leeftijd: '21+',           beschrijving: 'De Stam vormt het hart van de groep. Volwassen leden ondersteunen de organisatie, begeleiden jongeren en houden de traditie levend.' },
   ];
 
+  const loaded = Object.keys(content).length > 0;
   const cards = defaultSpeltakken.map((d, i) => ({
-    naam:         content[`speltak_${i}_naam`]         || d.naam,
-    leeftijd:     content[`speltak_${i}_leeftijd`]     || d.leeftijd,
-    beschrijving: content[`speltak_${i}_beschrijving`] || d.beschrijving,
+    naam:         (loaded ? content[`speltak_${i}_naam`]         || d.naam         : ''),
+    leeftijd:     (loaded ? content[`speltak_${i}_leeftijd`]     || d.leeftijd     : ''),
+    beschrijving: (loaded ? content[`speltak_${i}_beschrijving`] || d.beschrijving : ''),
     href:         content[`speltak_${i}_href`]         || '',
     hrefJongens:  content[`speltak_${i}_href_jongens`] || '',
     hrefMeisjes:  content[`speltak_${i}_href_meisjes`] || '',
