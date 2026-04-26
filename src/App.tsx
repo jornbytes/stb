@@ -1757,6 +1757,21 @@ export default function App() {
   const [showPopup, setShowPopup] = useState(false);
   const content = useHomepageContent();
 
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+    // Wait for the page to render before scrolling
+    const tryScroll = (attempts = 0) => {
+      const el = document.getElementById(hash);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else if (attempts < 20) {
+        setTimeout(() => tryScroll(attempts + 1), 100);
+      }
+    };
+    tryScroll();
+  }, []);
+
   return (
     <div className="font-sans">
       <AdminTopbar />
