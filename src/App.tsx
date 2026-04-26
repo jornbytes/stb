@@ -721,6 +721,8 @@ function Speltakken({ content }: { content: SiteSettings }) {
     leeftijd:     content[`speltak_${i}_leeftijd`]     || d.leeftijd,
     beschrijving: content[`speltak_${i}_beschrijving`] || d.beschrijving,
     href:         content[`speltak_${i}_href`]         || '',
+    hrefJongens:  content[`speltak_${i}_href_jongens`] || '',
+    hrefMeisjes:  content[`speltak_${i}_href_meisjes`] || '',
   }));
 
   return (
@@ -753,10 +755,12 @@ function Speltakken({ content }: { content: SiteSettings }) {
           {cards.map((s, i) => {
             const c = speltakColors[i];
             const tilt = speltakTilts[i];
-            const inner = (
+            const hasGenderLinks = s.hrefJongens || s.hrefMeisjes;
+            const cardCls = `group relative ${c.bg} ${c.border} border-2 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 ${(!hasGenderLinks && s.href) ? 'cursor-pointer' : 'cursor-default'}`;
+
+            const cardContent = (
               <div
-                className={`group relative ${c.bg} ${c.border} border-2 rounded-2xl overflow-hidden
-                  shadow-md hover:shadow-2xl transition-all duration-300 ${s.href ? 'cursor-pointer' : 'cursor-default'}`}
+                className={cardCls}
                 style={{ transform: `rotate(${tilt}deg)`, transition: 'transform 0.3s ease, box-shadow 0.3s ease' }}
                 onMouseEnter={e => (e.currentTarget.style.transform = 'rotate(0deg) translateY(-8px) scale(1.02)')}
                 onMouseLeave={e => (e.currentTarget.style.transform = `rotate(${tilt}deg)`)}
@@ -768,17 +772,42 @@ function Speltakken({ content }: { content: SiteSettings }) {
                 <div className="p-7 pt-5">
                   <h3 className="font-display text-forest-950 text-3xl font-bold uppercase mb-3 leading-none">{s.naam}</h3>
                   <p className="text-forest-600 text-sm leading-relaxed mb-5">{s.beschrijving}</p>
-                  <span className="flex items-center gap-1.5 text-scout-red font-semibold text-sm group-hover:gap-3 transition-all duration-200">
-                    Meer weten <ChevronRight className="w-4 h-4" />
-                  </span>
+                  {hasGenderLinks ? (
+                    <div className="flex gap-3">
+                      {s.hrefJongens && (
+                        <a
+                          href={s.hrefJongens}
+                          onClick={e => e.stopPropagation()}
+                          className="flex items-center gap-1.5 text-scout-red font-semibold text-sm hover:gap-3 transition-all duration-200"
+                        >
+                          Jongens <ChevronRight className="w-4 h-4" />
+                        </a>
+                      )}
+                      {s.hrefMeisjes && (
+                        <a
+                          href={s.hrefMeisjes}
+                          onClick={e => e.stopPropagation()}
+                          className="flex items-center gap-1.5 text-scout-red font-semibold text-sm hover:gap-3 transition-all duration-200"
+                        >
+                          Meisjes <ChevronRight className="w-4 h-4" />
+                        </a>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="flex items-center gap-1.5 text-scout-red font-semibold text-sm group-hover:gap-3 transition-all duration-200">
+                      Meer weten <ChevronRight className="w-4 h-4" />
+                    </span>
+                  )}
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/5 rounded-b-2xl" />
               </div>
             );
+
+            if (hasGenderLinks) return <div key={i}>{cardContent}</div>;
             return s.href ? (
-              <a key={i} href={s.href}>{inner}</a>
+              <a key={i} href={s.href}>{cardContent}</a>
             ) : (
-              <div key={i}>{inner}</div>
+              <div key={i}>{cardContent}</div>
             );
           })}
         </div>
