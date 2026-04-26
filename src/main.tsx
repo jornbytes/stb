@@ -6,7 +6,6 @@ import PageView from './PageView.tsx';
 import BlogPostPage from './BlogPostPage.tsx';
 import NewsPage from './NewsPage.tsx';
 import ContactPage from './ContactPage.tsx';
-import SiteGate from './SiteGate.tsx';
 import './index.css';
 
 const path = window.location.pathname;
@@ -34,11 +33,7 @@ function PublicSite() {
 function Root() {
   if (path.startsWith('/admin')) return <AdminApp />;
 
-  return (
-    <SiteGate>
-      <PublicSite />
-    </SiteGate>
-  );
+  return <PublicSite />;
 }
 
 createRoot(document.getElementById('root')!).render(

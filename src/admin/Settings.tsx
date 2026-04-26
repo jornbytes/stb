@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import {
   Save, Key, ExternalLink, CheckCircle, AlertCircle,
-  Link, Plus, Trash2, GripVertical, Globe, FileText, Lock, Unlock,
+  Link, Plus, Trash2, GripVertical, Globe, FileText,
 } from 'lucide-react';
 
 type FooterLink = {
@@ -332,98 +332,6 @@ function FooterLinksSection() {
   );
 }
 
-// ─── Private mode section ─────────────────────────────────────────────────────
-
-function PrivateModeSection() {
-  const [isPrivate, setIsPrivate] = useState(true);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState<'idle' | 'saved' | 'error'>('idle');
-
-  useEffect(() => {
-    supabase
-      .from('site_settings')
-      .select('value')
-      .eq('key', 'site_private')
-      .maybeSingle()
-      .then(({ data }) => {
-        setIsPrivate(data?.value !== 'false');
-        setLoading(false);
-      });
-  }, []);
-
-  async function handleToggle() {
-    const next = !isPrivate;
-    setSaving(true);
-    setStatus('idle');
-    const { error } = await supabase
-      .from('site_settings')
-      .upsert({ key: 'site_private', value: next ? 'true' : 'false', updated_at: new Date().toISOString() });
-    setSaving(false);
-    if (error) {
-      setStatus('error');
-    } else {
-      setIsPrivate(next);
-      setStatus('saved');
-      setTimeout(() => setStatus('idle'), 3000);
-    }
-  }
-
-  return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-        {isPrivate ? <Lock className="w-4 h-4 text-gray-500" /> : <Unlock className="w-4 h-4 text-green-500" />}
-        <h3 className="font-semibold text-gray-900 text-sm">Zichtbaarheid website</h3>
-      </div>
-      <div className="p-6">
-        <div className="flex items-center justify-between gap-6">
-          <div>
-            <p className="text-sm font-medium text-gray-800">
-              {isPrivate ? 'Website is privé (inlogscherm actief)' : 'Website is openbaar'}
-            </p>
-            <p className="text-xs text-gray-400 mt-1">
-              {isPrivate
-                ? 'Bezoekers zien een inlogscherm en moeten inloggen om de site te bekijken.'
-                : 'Iedereen kan de website bezoeken zonder in te loggen.'}
-            </p>
-          </div>
-          <div className="flex flex-col items-center gap-1 shrink-0">
-            <button
-              type="button"
-              onClick={handleToggle}
-              disabled={saving || loading}
-              className={`relative w-12 h-6 rounded-full transition-colors duration-200 focus:outline-none disabled:opacity-50 ${
-                isPrivate ? 'bg-gray-300' : 'bg-green-500'
-              }`}
-              aria-pressed={!isPrivate}
-            >
-              <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${
-                  isPrivate ? 'translate-x-0' : 'translate-x-6'
-                }`}
-              />
-            </button>
-            <span className="text-[10px] text-gray-400">{isPrivate ? 'Privé' : 'Openbaar'}</span>
-          </div>
-        </div>
-
-        {status === 'saved' && (
-          <div className="mt-4 flex items-center gap-1.5 text-sm text-green-600">
-            <CheckCircle className="w-4 h-4" />
-            {isPrivate ? 'Privémodus ingeschakeld' : 'Website is nu openbaar'}
-          </div>
-        )}
-        {status === 'error' && (
-          <div className="mt-4 flex items-center gap-1.5 text-sm text-red-600">
-            <AlertCircle className="w-4 h-4" />
-            Opslaan mislukt
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export default function Settings() {
@@ -433,7 +341,6 @@ export default function Settings() {
         <h2 className="text-lg font-semibold text-gray-900">Instellingen</h2>
         <p className="text-sm text-gray-400">Globale configuratie voor de beheeromgeving</p>
       </div>
-      <PrivateModeSection />
       <PexelsSection />
       <FooterLinksSection />
     </div>
