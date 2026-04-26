@@ -33,6 +33,41 @@ type Page = {
   seo_title: string;
 };
 
+type FormSettings = {
+  badge: string;
+  title: string;
+  subtitle: string;
+  button: string;
+  privacyText: string;
+  trust: Array<{ title: string; sub: string }>;
+  successTitle: string;
+  successText: string;
+};
+
+const FORM_DEFAULTS: FormSettings = {
+  badge: 'Gratis en vrijblijvend',
+  title: 'Meld je aan',
+  subtitle: 'Vul het formulier in en wij nemen snel contact op om een datum af te spreken.',
+  button: 'Aanmelden voor meekijken',
+  privacyText: 'Je gegevens worden alleen gebruikt om contact met je op te nemen en worden niet gedeeld.',
+  trust: [
+    { title: 'Tot 4x gratis', sub: 'probeer zonder verplichtingen' },
+    { title: 'Snel reactie', sub: 'we nemen contact op' },
+    { title: 'Geen uitrusting', sub: 'kom gewoon zoals je bent' },
+  ],
+  successTitle: 'Aanmelding ontvangen!',
+  successText: 'Bedankt voor je aanmelding. We nemen zo snel mogelijk contact met je op om een datum af te spreken.',
+};
+
+const MEEKIJKEN_KEYS = [
+  'meekijken_form_badge', 'meekijken_form_title', 'meekijken_form_subtitle',
+  'meekijken_form_button', 'meekijken_privacy_text',
+  'meekijken_trust_1_title', 'meekijken_trust_1_sub',
+  'meekijken_trust_2_title', 'meekijken_trust_2_sub',
+  'meekijken_trust_3_title', 'meekijken_trust_3_sub',
+  'meekijken_success_title', 'meekijken_success_text',
+];
+
 // ─── NavBar ───────────────────────────────────────────────────────────────────
 
 function NavBar() {
@@ -172,7 +207,7 @@ function Footer() {
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error';
 
-function AanmeldFormulier() {
+function AanmeldFormulier({ fs }: { fs: FormSettings }) {
   const [naam, setNaam] = useState('');
   const [leeftijd, setLeeftijd] = useState('');
   const [email, setEmail] = useState('');
@@ -221,10 +256,10 @@ function AanmeldFormulier() {
         <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
           <CheckCircle className="w-8 h-8 text-green-600" />
         </div>
-        <h3 className="font-display font-bold text-forest-950 text-2xl uppercase">Aanmelding ontvangen!</h3>
-        <p className="text-gray-500 text-sm max-w-sm leading-relaxed">
-          Bedankt voor je aanmelding. We nemen zo snel mogelijk contact met je op om een datum af te spreken.
-        </p>
+        <h3 className="font-display font-bold text-forest-950 text-2xl uppercase">
+          {fs.successTitle}
+        </h3>
+        <p className="text-gray-500 text-sm max-w-sm leading-relaxed">{fs.successText}</p>
         <button
           onClick={() => { setState('idle'); setNaam(''); setLeeftijd(''); setEmail(''); setTelefoon(''); setOpmerking(''); }}
           className="mt-2 text-sm text-forest-700 hover:text-forest-900 font-medium transition-colors"
@@ -349,14 +384,12 @@ function AanmeldFormulier() {
           </>
         ) : (
           <>
-            Aanmelden voor meekijken
+            {fs.button}
             <ArrowRight className="w-4 h-4" />
           </>
         )}
       </button>
-      <p className="text-center text-xs text-gray-400">
-        Je gegevens worden alleen gebruikt om contact met je op te nemen en worden niet gedeeld.
-      </p>
+      <p className="text-center text-xs text-gray-400">{fs.privacyText}</p>
     </form>
   );
 }
@@ -365,6 +398,7 @@ function AanmeldFormulier() {
 
 export default function MeekijkenPage() {
   const [page, setPage] = useState<Page | null>(null);
+  const [formSettings, setFormSettings] = useState<FormSettings>(FORM_DEFAULTS);
 
   useEffect(() => {
     supabase
@@ -374,9 +408,43 @@ export default function MeekijkenPage() {
       .eq('published', true)
       .maybeSingle()
       .then(({ data }) => setPage(data));
+
+    supabase
+      .from('site_settings')
+      .select('key, value')
+      .in('key', MEEKIJKEN_KEYS)
+      .then(({ data }) => {
+        if (!data || data.length === 0) return;
+        const m: Record<string, string> = {};
+        data.forEach(r => { m[r.key] = r.value; });
+        setFormSettings({
+          badge:        m.meekijken_form_badge    || FORM_DEFAULTS.badge,
+          title:        m.meekijken_form_title    || FORM_DEFAULTS.title,
+          subtitle:     m.meekijken_form_subtitle || FORM_DEFAULTS.subtitle,
+          button:       m.meekijken_form_button   || FORM_DEFAULTS.button,
+          privacyText:  m.meekijken_privacy_text  || FORM_DEFAULTS.privacyText,
+          successTitle: m.meekijken_success_title || FORM_DEFAULTS.successTitle,
+          successText:  m.meekijken_success_text  || FORM_DEFAULTS.successText,
+          trust: [
+            {
+              title: m.meekijken_trust_1_title || FORM_DEFAULTS.trust[0].title,
+              sub:   m.meekijken_trust_1_sub   || FORM_DEFAULTS.trust[0].sub,
+            },
+            {
+              title: m.meekijken_trust_2_title || FORM_DEFAULTS.trust[1].title,
+              sub:   m.meekijken_trust_2_sub   || FORM_DEFAULTS.trust[1].sub,
+            },
+            {
+              title: m.meekijken_trust_3_title || FORM_DEFAULTS.trust[2].title,
+              sub:   m.meekijken_trust_3_sub   || FORM_DEFAULTS.trust[2].sub,
+            },
+          ],
+        });
+      });
   }, []);
 
   const title = page?.title || 'Kom meekijken';
+  const fs = formSettings;
 
   return (
     <div className="min-h-screen bg-white">
@@ -446,30 +514,24 @@ export default function MeekijkenPage() {
           {/* Section header */}
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 bg-scout-red/10 border border-scout-red/20 text-scout-red font-medium text-xs tracking-widest uppercase px-4 py-2 rounded-full mb-5">
-              Gratis en vrijblijvend
+              {fs.badge}
             </div>
             <h2 className="font-display text-forest-950 text-4xl md:text-5xl font-bold uppercase leading-none mb-3">
-              Meld je aan<span className="text-scout-red">.</span>
+              {fs.title}<span className="text-scout-red">.</span>
             </h2>
-            <p className="text-forest-600 max-w-md mx-auto leading-relaxed text-sm">
-              Vul het formulier in en wij nemen snel contact op om een datum af te spreken.
-            </p>
+            <p className="text-forest-600 max-w-md mx-auto leading-relaxed text-sm">{fs.subtitle}</p>
           </div>
 
           {/* Card */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-forest-950/5 p-8 md:p-10">
-            <AanmeldFormulier />
+            <AanmeldFormulier fs={fs} />
           </div>
 
           {/* Trust badges */}
           <div className="mt-8 grid grid-cols-3 gap-4 text-center">
-            {[
-              { label: 'Tot 4x gratis', sub: 'probeer zonder verplichtingen' },
-              { label: 'Snel reactie', sub: 'we nemen contact op' },
-              { label: 'Geen uitrusting', sub: 'kom gewoon zoals je bent' },
-            ].map((b) => (
-              <div key={b.label} className="bg-white/60 rounded-xl p-4 border border-gray-100">
-                <div className="font-display font-bold text-forest-950 text-sm uppercase tracking-wide leading-tight">{b.label}</div>
+            {fs.trust.map((b, i) => (
+              <div key={i} className="bg-white/60 rounded-xl p-4 border border-gray-100">
+                <div className="font-display font-bold text-forest-950 text-sm uppercase tracking-wide leading-tight">{b.title}</div>
                 <div className="text-gray-500 text-[11px] mt-1 leading-tight">{b.sub}</div>
               </div>
             ))}

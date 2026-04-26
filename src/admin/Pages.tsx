@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import {
   Plus, ArrowLeft, Trash2, Eye, EyeOff, Save, AlertCircle,
-  Globe, Lock, KeyRound, Search, ExternalLink, ChevronDown, ChevronUp,
+  Globe, Lock, KeyRound, ExternalLink, ChevronDown, ChevronUp,
 } from 'lucide-react';
 import RichEditor from './RichEditor';
 import { ImagePickerField } from './ImagePicker';
@@ -80,6 +80,146 @@ function Textarea({ value, onChange, placeholder, rows = 3 }: {
     />
   );
 }
+
+// ─── Meekijken form settings ──────────────────────────────────────────────────
+
+const MEEKIJKEN_KEYS = [
+  'meekijken_form_badge',
+  'meekijken_form_title',
+  'meekijken_form_subtitle',
+  'meekijken_form_button',
+  'meekijken_trust_1_title',
+  'meekijken_trust_1_sub',
+  'meekijken_trust_2_title',
+  'meekijken_trust_2_sub',
+  'meekijken_trust_3_title',
+  'meekijken_trust_3_sub',
+  'meekijken_success_title',
+  'meekijken_success_text',
+  'meekijken_privacy_text',
+];
+
+type MeekijkenSettingMap = Record<string, string>;
+
+function MeekijkenSettings() {
+  const [settings, setSettings] = useState<MeekijkenSettingMap>({});
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+
+  useEffect(() => {
+    supabase
+      .from('site_settings')
+      .select('key, value')
+      .in('key', MEEKIJKEN_KEYS)
+      .then(({ data }) => {
+        const map: MeekijkenSettingMap = {};
+        (data ?? []).forEach(r => { map[r.key] = r.value; });
+        setSettings(map);
+      });
+  }, []);
+
+  const set = useCallback((key: string, value: string) => {
+    setSettings(prev => ({ ...prev, [key]: value }));
+  }, []);
+
+  async function handleSave() {
+    setSaveState('saving');
+    const rows = MEEKIJKEN_KEYS.map(key => ({
+      key,
+      value: settings[key] ?? '',
+      updated_at: new Date().toISOString(),
+    }));
+    const { error } = await supabase.from('site_settings').upsert(rows);
+    if (error) { setSaveState('error'); return; }
+    setSaveState('saved');
+    setTimeout(() => setSaveState('idle'), 2500);
+  }
+
+  const s = settings;
+  const inp = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-forest-400 transition';
+
+  return (
+    <div className="border border-forest-200 rounded-xl overflow-hidden bg-forest-50/40">
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-forest-200 flex items-center justify-between">
+        <span className="text-xs font-semibold text-forest-800 uppercase tracking-wider">Formulier &amp; teksten</span>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saveState === 'saving'}
+          className="flex items-center gap-1.5 text-xs bg-forest-800 hover:bg-forest-900 text-white px-3 py-1.5 rounded-lg disabled:opacity-50 transition font-medium"
+        >
+          <Save className="w-3.5 h-3.5" />
+          {saveState === 'saving' ? 'Opslaan...' : saveState === 'saved' ? 'Opgeslagen!' : 'Opslaan'}
+        </button>
+      </div>
+
+      <div className="px-4 pb-4 pt-3 space-y-4">
+        {saveState === 'error' && (
+          <div className="flex items-center gap-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" /> Opslaan mislukt
+          </div>
+        )}
+
+        {/* Sectie-header */}
+        <div>
+          <Label>Label boven de titel</Label>
+          <input className={inp} value={s.meekijken_form_badge ?? ''} onChange={e => set('meekijken_form_badge', e.target.value)} placeholder="Gratis en vrijblijvend" />
+        </div>
+        <div>
+          <Label>Formulier titel</Label>
+          <input className={inp} value={s.meekijken_form_title ?? ''} onChange={e => set('meekijken_form_title', e.target.value)} placeholder="Meld je aan" />
+        </div>
+        <div>
+          <Label>Formulier ondertitel</Label>
+          <textarea className={inp + ' resize-none'} rows={2} value={s.meekijken_form_subtitle ?? ''} onChange={e => set('meekijken_form_subtitle', e.target.value)} placeholder="Vul het formulier in en wij nemen snel contact op..." />
+        </div>
+        <div>
+          <Label>Tekst verstuur-knop</Label>
+          <input className={inp} value={s.meekijken_form_button ?? ''} onChange={e => set('meekijken_form_button', e.target.value)} placeholder="Aanmelden voor meekijken" />
+        </div>
+        <div>
+          <Label>Privacy-tekst onder knop</Label>
+          <input className={inp} value={s.meekijken_privacy_text ?? ''} onChange={e => set('meekijken_privacy_text', e.target.value)} placeholder="Je gegevens worden alleen gebruikt om contact met je op te nemen..." />
+        </div>
+
+        {/* Trust badges */}
+        <div className="border-t border-forest-200 pt-3">
+          <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-widest mb-2">Vertrouwensbadges</p>
+          {([
+            ['meekijken_trust_1_title', 'meekijken_trust_1_sub', 'Badge 1'],
+            ['meekijken_trust_2_title', 'meekijken_trust_2_sub', 'Badge 2'],
+            ['meekijken_trust_3_title', 'meekijken_trust_3_sub', 'Badge 3'],
+          ] as const).map(([tk, sk, label]) => (
+            <div key={tk} className="mb-2">
+              <Label>{label}</Label>
+              <div className="flex gap-2">
+                <input className={inp} value={s[tk] ?? ''} onChange={e => set(tk, e.target.value)} placeholder="Titel" />
+                <input className={inp} value={s[sk] ?? ''} onChange={e => set(sk, e.target.value)} placeholder="Ondertitel" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Succes-scherm */}
+        <div className="border-t border-forest-200 pt-3">
+          <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-widest mb-2">Na verzending</p>
+          <div className="space-y-2">
+            <div>
+              <Label>Succesbericht titel</Label>
+              <input className={inp} value={s.meekijken_success_title ?? ''} onChange={e => set('meekijken_success_title', e.target.value)} placeholder="Aanmelding ontvangen!" />
+            </div>
+            <div>
+              <Label>Succesbericht tekst</Label>
+              <textarea className={inp + ' resize-none'} rows={2} value={s.meekijken_success_text ?? ''} onChange={e => set('meekijken_success_text', e.target.value)} placeholder="Bedankt voor je aanmelding. We nemen zo snel mogelijk contact..." />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Pages ────────────────────────────────────────────────────────────────────
 
 export default function Pages() {
   const [view, setView] = useState<View>('list');
@@ -250,6 +390,13 @@ export default function Pages() {
                 onChange={(v) => upd({ content: v })}
               />
             </div>
+
+            {/* Meekijken-specific: form settings */}
+            {editing.slug === 'meekijken' && (
+              <div>
+                <MeekijkenSettings />
+              </div>
+            )}
           </div>
 
           {/* ── Sidebar ───────────────────────────────────────────────────── */}
