@@ -51,7 +51,7 @@ function NavBar() {
   useEffect(() => {
     supabase
       .from('nav_items')
-      .select('id, label, href, open_in_new_tab')
+      .select('id, label, href, open_in_new_tab, icon')
       .order('position')
       .then(({ data }) => {
         if (data && data.length > 0) {
@@ -81,18 +81,31 @@ function NavBar() {
 
         <nav className="hidden md:flex items-center gap-7">
           {links.map((l) => (
-            <a
-              key={l.id}
-              href={l.href}
-              target={l.open_in_new_tab ? '_blank' : undefined}
-              rel={l.open_in_new_tab ? 'noopener noreferrer' : undefined}
-              title={hasNavIcon(l.icon) ? l.label : undefined}
-              className="text-white/80 hover:text-white text-sm font-medium tracking-wide transition-colors"
-            >
-              {hasNavIcon(l.icon)
-                ? <NavIcon icon={l.icon} className="w-5 h-5" />
-                : l.label}
-            </a>
+            hasNavIcon(l.icon) ? (
+              <a
+                key={l.id}
+                href={l.href}
+                target={l.open_in_new_tab ? '_blank' : undefined}
+                rel={l.open_in_new_tab ? 'noopener noreferrer' : undefined}
+                className="relative group/navicon text-white/80 hover:text-white transition-colors"
+              >
+                <NavIcon icon={l.icon} className="w-5 h-5" />
+                <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 px-2.5 py-1 rounded-md bg-forest-900 border border-forest-700 text-white text-xs font-medium whitespace-nowrap opacity-0 group-hover/navicon:opacity-100 transition-opacity duration-150 shadow-lg">
+                  {l.label}
+                  <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-forest-900" />
+                </span>
+              </a>
+            ) : (
+              <a
+                key={l.id}
+                href={l.href}
+                target={l.open_in_new_tab ? '_blank' : undefined}
+                rel={l.open_in_new_tab ? 'noopener noreferrer' : undefined}
+                className="text-white/80 hover:text-white text-sm font-medium tracking-wide transition-colors"
+              >
+                {l.label}
+              </a>
+            )
           ))}
         </nav>
 
