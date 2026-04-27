@@ -27,12 +27,14 @@ import Settings from './Settings';
 import HomepageEditor from './HomepageEditor';
 import ContactEditor from './ContactEditor';
 import ContactSubmissions from './ContactSubmissions';
+import MeekijkenSubmissions from './MeekijkenSubmissions';
 
-type Section = 'overview' | 'blog' | 'pages' | 'submissions' | 'media' | 'users' | 'nav' | 'settings' | 'homepage' | 'contact' | 'contact-messages';
+type Section = 'overview' | 'blog' | 'pages' | 'submissions' | 'media' | 'users' | 'nav' | 'settings' | 'homepage' | 'contact' | 'contact-messages' | 'meekijken';
 
 const nav: { id: Section; label: string; icon: React.ReactNode; desc: string; group?: string }[] = [
   { id: 'overview', label: 'Overzicht', icon: <LayoutDashboard className="w-4 h-4" />, desc: 'Dashboard' },
   { id: 'submissions', label: 'Aanmeldingen', icon: <Inbox className="w-4 h-4" />, desc: 'Formulier inzendingen' },
+  { id: 'meekijken', label: 'Meekijken', icon: <Inbox className="w-4 h-4" />, desc: 'Aanmeldingen via meekijken-formulier' },
   { id: 'contact-messages', label: 'Contactberichten', icon: <MessageCircle className="w-4 h-4" />, desc: 'Berichten via contactformulier' },
   { id: 'homepage', label: 'Homepagina', icon: <Type className="w-4 h-4" />, desc: 'Teksten & foto\'s homepagina', group: 'Inhoud' },
   { id: 'contact', label: 'Contactpagina', icon: <MessageCircle className="w-4 h-4" />, desc: 'Contactgegevens & formulier', group: 'Inhoud' },
@@ -50,12 +52,15 @@ export default function AdminDashboard() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [submissionCount, setSubmissionCount] = useState<number | null>(null);
   const [contactMessageCount, setContactMessageCount] = useState<number | null>(null);
+  const [meekijkenCount, setMeekijkenCount] = useState<number | null>(null);
 
   useEffect(() => {
     supabase.from('membership_requests').select('id', { count: 'exact', head: true })
       .then(({ count }) => setSubmissionCount(count ?? 0));
     supabase.from('contact_messages').select('id', { count: 'exact', head: true }).eq('behandeld', false)
       .then(({ count }) => setContactMessageCount(count ?? 0));
+    supabase.from('meekijken_requests').select('id', { count: 'exact', head: true }).eq('behandeld', false)
+      .then(({ count }) => setMeekijkenCount(count ?? 0));
   }, []);
 
   async function handleLogout() {
@@ -100,6 +105,9 @@ export default function AdminDashboard() {
                   )}
                   {item.id === 'contact-messages' && contactMessageCount !== null && contactMessageCount > 0 && (
                     <span className="bg-scout-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">{contactMessageCount}</span>
+                  )}
+                  {item.id === 'meekijken' && meekijkenCount !== null && meekijkenCount > 0 && (
+                    <span className="bg-scout-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">{meekijkenCount}</span>
                   )}
                   {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-white/60 rounded-r-full" />}
                 </button>
@@ -179,6 +187,7 @@ export default function AdminDashboard() {
           {section === 'homepage' && <HomepageEditor />}
           {section === 'contact' && <ContactEditor />}
           {section === 'contact-messages' && <ContactSubmissions />}
+          {section === 'meekijken' && <MeekijkenSubmissions />}
           {section === 'blog' && <BlogPosts />}
           {section === 'pages' && <Pages />}
           {section === 'submissions' && <Submissions />}
