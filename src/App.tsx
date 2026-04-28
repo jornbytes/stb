@@ -154,9 +154,9 @@ function LidWordenPopup({ onClose, content }: { onClose: () => void; content: Si
             <img src="/logo-transparant-150.png" alt="Logo" className="h-8 w-auto" />
             <div>
               <div className="font-display text-white font-bold text-lg uppercase tracking-wide">
-                Lid worden
+                {content.lidworden_popup_title || 'Lid worden'}
               </div>
-              <div className="text-white/40 text-xs">Scouting Titus Brandsma</div>
+              <div className="text-white/40 text-xs">{content.lidworden_popup_subtitle || 'Scouting Titus Brandsma'}</div>
             </div>
           </div>
           <button
@@ -174,11 +174,10 @@ function LidWordenPopup({ onClose, content }: { onClose: () => void; content: Si
               <CheckCircle2 className="w-8 h-8 text-scout-red" />
             </div>
             <h3 className="font-display text-white text-2xl font-bold uppercase mb-3">
-              Aanmelding ontvangen!
+              {content.lidworden_popup_success_title || 'Aanmelding ontvangen!'}
             </h3>
             <p className="text-white/60 text-sm leading-relaxed mb-6">
-              Bedankt voor je aanmelding. We nemen zo snel mogelijk contact met je op om alles te
-              bespreken. Welkom bij Scouting Titus Brandsma!
+              {content.lidworden_popup_success_text || 'Bedankt voor je aanmelding. We nemen zo snel mogelijk contact met je op om alles te bespreken. Welkom bij Scouting Titus Brandsma!'}
             </p>
             <button
               onClick={onClose}
@@ -293,11 +292,11 @@ function LidWordenPopup({ onClose, content }: { onClose: () => void; content: Si
               disabled={status === 'loading'}
               className="w-full bg-scout-red text-white font-display font-semibold text-sm py-4 rounded-full hover:bg-scout-darkred disabled:opacity-60 transition-all tracking-widest uppercase"
             >
-              {status === 'loading' ? 'Versturen...' : 'Aanmelding versturen'}
+              {status === 'loading' ? 'Versturen...' : (content.lidworden_popup_button || 'Aanmelding versturen')}
             </button>
 
             <p className="text-white/30 text-xs text-center">
-              Na je aanmelding nemen we contact met je op voor een kennismaking.
+              {content.lidworden_popup_privacy_text || 'Na je aanmelding nemen we contact met je op voor een kennismaking.'}
             </p>
           </form>
         )}
@@ -457,7 +456,7 @@ function NavBar({ onLidWorden }: { onLidWorden: () => void }) {
           onClick={onLidWorden}
           className="group hidden md:flex items-center gap-2 bg-scout-red hover:bg-scout-darkred text-white font-display font-semibold text-sm px-5 py-2.5 rounded-full tracking-wide uppercase transition-colors duration-200"
         >
-          Lid worden
+          Meekijken
           <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-200" />
         </button>
 
@@ -489,7 +488,7 @@ function NavBar({ onLidWorden }: { onLidWorden: () => void }) {
               onClick={() => { setOpen(false); onLidWorden(); }}
               className="mt-2 inline-flex items-center gap-2 bg-scout-red text-white font-display font-semibold text-sm px-5 py-3 rounded-full w-fit tracking-wide uppercase"
             >
-              Lid worden <ArrowRight className="w-4 h-4" />
+              Meekijken <ArrowRight className="w-4 h-4" />
             </button>
           </nav>
         </div>
@@ -561,7 +560,7 @@ function Hero({ onLidWorden, content }: { onLidWorden: () => void; content: Site
             onClick={onLidWorden}
             className="group inline-flex items-center gap-2 bg-scout-red hover:bg-scout-darkred text-white font-display font-semibold text-sm px-8 py-4 rounded-full tracking-widest uppercase transition-colors duration-200 shadow-lg shadow-scout-red/30"
           >
-            Lid worden
+            Meekijken
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-200" />
           </button>
           <a
