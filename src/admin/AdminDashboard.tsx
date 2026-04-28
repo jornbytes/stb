@@ -16,6 +16,7 @@ import {
   Navigation,
   Settings as SettingsIcon,
   MessageCircle,
+  BarChart2,
 } from 'lucide-react';
 import BlogPosts from './BlogPosts';
 import Pages from './Pages';
@@ -28,11 +29,13 @@ import HomepageEditor from './HomepageEditor';
 import ContactEditor from './ContactEditor';
 import ContactSubmissions from './ContactSubmissions';
 import MeekijkenSubmissions from './MeekijkenSubmissions';
+import Analytics from './Analytics';
 
-type Section = 'overview' | 'blog' | 'pages' | 'submissions' | 'media' | 'users' | 'nav' | 'settings' | 'homepage' | 'contact' | 'contact-messages' | 'meekijken';
+type Section = 'overview' | 'analytics' | 'blog' | 'pages' | 'submissions' | 'media' | 'users' | 'nav' | 'settings' | 'homepage' | 'contact' | 'contact-messages' | 'meekijken';
 
 const nav: { id: Section; label: string; icon: React.ReactNode; desc: string; group?: string }[] = [
   { id: 'overview', label: 'Overzicht', icon: <LayoutDashboard className="w-4 h-4" />, desc: 'Dashboard' },
+  { id: 'analytics', label: 'Analytics', icon: <BarChart2 className="w-4 h-4" />, desc: 'Bezoekersstatistieken' },
   { id: 'submissions', label: 'Aanmeldingen', icon: <Inbox className="w-4 h-4" />, desc: 'Formulier inzendingen' },
   { id: 'meekijken', label: 'Meekijken', icon: <Inbox className="w-4 h-4" />, desc: 'Aanmeldingen via meekijken-formulier' },
   { id: 'contact-messages', label: 'Contactberichten', icon: <MessageCircle className="w-4 h-4" />, desc: 'Berichten via contactformulier' },
@@ -184,6 +187,7 @@ export default function AdminDashboard() {
         {/* Content */}
         <main className="flex-1 p-6 overflow-auto">
           {section === 'overview' && <Overview onNavigate={setSection} submissionCount={submissionCount} />}
+          {section === 'analytics' && <Analytics />}
           {section === 'homepage' && <HomepageEditor />}
           {section === 'contact' && <ContactEditor />}
           {section === 'contact-messages' && <ContactSubmissions />}
@@ -235,10 +239,28 @@ function QuickAction({ icon, label, desc, onClick, badge }: { icon: React.ReactN
 function Overview({ onNavigate, submissionCount }: { onNavigate: (s: Section) => void; submissionCount: number | null }) {
   const [pageCount, setPageCount] = useState<number | null>(null);
   const [postCount, setPostCount] = useState<number | null>(null);
+  const [viewsToday, setViewsToday] = useState<number | null>(null);
+  const [visitorsThisWeek, setVisitorsThisWeek] = useState<number | null>(null);
 
   useEffect(() => {
     supabase.from('pages').select('id', { count: 'exact', head: true }).then(({ count }) => setPageCount(count ?? 0));
     supabase.from('blog_posts').select('id', { count: 'exact', head: true }).then(({ count }) => setPostCount(count ?? 0));
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    supabase.from('page_views').select('id', { count: 'exact', head: true })
+      .gte('created_at', todayStart.toISOString())
+      .then(({ count }) => setViewsToday(count ?? 0));
+
+    const weekStart = new Date();
+    weekStart.setDate(weekStart.getDate() - 7);
+    weekStart.setHours(0, 0, 0, 0);
+    supabase.from('page_views').select('session_id')
+      .gte('created_at', weekStart.toISOString())
+      .then(({ data }) => {
+        const unique = new Set((data ?? []).map((r) => r.session_id)).size;
+        setVisitorsThisWeek(unique);
+      });
   }, []);
 
   return (
@@ -249,7 +271,7 @@ function Overview({ onNavigate, submissionCount }: { onNavigate: (s: Section) =>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <StatCard
           icon={<Inbox className="w-5 h-5 text-scout-red" />}
           label="Aanmeldingen"
@@ -268,6 +290,21 @@ function Overview({ onNavigate, submissionCount }: { onNavigate: (s: Section) =>
           value={postCount ?? 0}
           color="bg-blue-50"
         />
+        <button
+          onClick={() => onNavigate('analytics')}
+          className="bg-white rounded-2xl border border-gray-100 p-5 flex items-center gap-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all text-left"
+        >
+          <div className="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
+            <BarChart2 className="w-5 h-5 text-amber-600" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-gray-900 leading-none">{viewsToday ?? '—'}</div>
+            <div className="text-xs text-gray-500 mt-0.5">Bezoeken vandaag</div>
+            {visitorsThisWeek !== null && (
+              <div className="text-[11px] text-gray-400">{visitorsThisWeek} bezoekers (7d)</div>
+            )}
+          </div>
+        </button>
       </div>
 
       {/* Quick actions */}
@@ -294,10 +331,10 @@ function Overview({ onNavigate, submissionCount }: { onNavigate: (s: Section) =>
             onClick={() => onNavigate('blog')}
           />
           <QuickAction
-            icon={<Type className="w-6 h-6 text-amber-600" />}
-            label="Homepage teksten"
-            desc="Pas teksten op de homepage aan"
-            onClick={() => onNavigate('texts')}
+            icon={<BarChart2 className="w-6 h-6 text-amber-600" />}
+            label="Analytics"
+            desc="Bekijk bezoekersstatistieken"
+            onClick={() => onNavigate('analytics')}
           />
         </div>
       </div>
