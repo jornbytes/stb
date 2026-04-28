@@ -22,13 +22,23 @@ function getSessionId(): string {
   return sid;
 }
 
+function shouldSkipTracking(): boolean {
+  const host = window.location.hostname;
+  if (host.includes('bolt.new') || host.includes('webcontainer-api.io') || host === 'localhost' || host === '127.0.0.1') return true;
+  return false;
+}
+
 async function trackPageView(title: string) {
+  if (shouldSkipTracking()) return;
+  const session = await supabase.auth.getSession();
+  if (session.data.session) return;
   const { error } = await supabase.from('page_views').insert({
     path,
     page_title: title,
     referrer: document.referrer || null,
     user_agent: navigator.userAgent || null,
     session_id: getSessionId(),
+    hostname: window.location.hostname,
   });
   if (error) console.error('[page_views insert]', error);
 }

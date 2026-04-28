@@ -289,8 +289,12 @@ export default function Analytics() {
       const start = rangeStart(range);
       const prevStart = start ? new Date(start.getTime() - (new Date().getTime() - start.getTime())) : null;
 
+      const DEV_HOSTS = ['localhost', '127.0.0.1', 'bolt.new', 'webcontainer-api.io'];
+
       let q = supabase.from('page_views').select('*').order('created_at', { ascending: true });
       if (start) q = q.gte('created_at', start.toISOString());
+      // exclude dev hostnames (stored or null = old records before hostname column)
+      for (const h of DEV_HOSTS) q = q.not('hostname', 'ilike', `%${h}%`);
       const { data } = await q;
       setViews(data ?? []);
 
@@ -298,6 +302,7 @@ export default function Analytics() {
         let pq = supabase.from('page_views').select('*')
           .gte('created_at', prevStart.toISOString())
           .lt('created_at', start.toISOString());
+        for (const h of DEV_HOSTS) pq = pq.not('hostname', 'ilike', `%${h}%`);
         const { data: prev } = await pq;
         setPrevViews(prev ?? []);
       } else {
