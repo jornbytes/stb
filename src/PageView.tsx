@@ -27,6 +27,7 @@ type Page = {
   slug: string;
   hero_subtitle: string;
   hero_image: string;
+  hero_image_position: string;
   content: string;
   published: boolean;
   visibility: 'public' | 'private' | 'password';
@@ -229,7 +230,7 @@ const TIMELINE = [
   },
 ];
 
-function OverOnsPageLayout({ page }: { page: { title: string; seo_title: string; hero_subtitle: string; hero_image: string; slug: string } }) {
+function OverOnsPageLayout({ page }: { page: { title: string; seo_title: string; hero_subtitle: string; hero_image: string; hero_image_position: string; slug: string } }) {
   return (
     <div className="min-h-screen bg-forest-950">
       <AdminTopbar pageSlug={page.slug} />
@@ -242,8 +243,8 @@ function OverOnsPageLayout({ page }: { page: { title: string; seo_title: string;
         {/* Background photo or gradient */}
         {page.hero_image ? (
           <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${page.hero_image})`, animation: 'heroZoom 16s ease-out forwards', transform: 'scale(1.06)' }}
+            className="absolute inset-0 bg-cover"
+            style={{ backgroundImage: `url(${page.hero_image})`, backgroundPosition: page.hero_image_position || 'center', animation: 'heroZoom 16s ease-out forwards', transform: 'scale(1.06)' }}
           />
         ) : (
           <>
@@ -558,7 +559,7 @@ function GebouwLightbox({ photos, startIndex, onClose }: { photos: string[]; sta
   );
 }
 
-function OnsGebouwPageLayout({ page }: { page: { title: string; seo_title: string; hero_subtitle: string; hero_image: string; slug: string } }) {
+function OnsGebouwPageLayout({ page }: { page: { title: string; seo_title: string; hero_subtitle: string; hero_image: string; hero_image_position: string; slug: string } }) {
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const heroImg = page.hero_image || GEBOUW_FOTOS[0];
 
@@ -575,8 +576,8 @@ function OnsGebouwPageLayout({ page }: { page: { title: string; seo_title: strin
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <div className="relative overflow-hidden" style={{ minHeight: '600px', display: 'flex', flexDirection: 'column' }}>
         <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroImg})`, animation: 'heroZoom 20s ease-out forwards', transform: 'scale(1.06)' }}
+          className="absolute inset-0 bg-cover"
+          style={{ backgroundImage: `url(${heroImg})`, backgroundPosition: page.hero_image_position || 'center', animation: 'heroZoom 20s ease-out forwards', transform: 'scale(1.06)' }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-forest-950/50 via-forest-950/20 to-forest-950" />
         <div className="absolute inset-0 bg-gradient-to-r from-forest-950/70 via-transparent to-transparent" />
@@ -866,9 +867,10 @@ export default function PageView({ slug }: { slug: string }) {
         {/* Background */}
         {page.hero_image ? (
           <div
-            className="absolute inset-0 bg-cover bg-center"
+            className="absolute inset-0 bg-cover"
             style={{
               backgroundImage: `url(${page.hero_image})`,
+              backgroundPosition: page.hero_image_position || 'center',
               animation: 'heroZoom 16s ease-out forwards',
               transform: 'scale(1.06)',
             }}

@@ -15,6 +15,7 @@ type Page = {
   slug: string;
   hero_subtitle: string;
   hero_image: string;
+  hero_image_position: string;
   content: string;
   published: boolean;
   visibility: Visibility;
@@ -219,6 +220,62 @@ function MeekijkenSettings() {
   );
 }
 
+// ─── Focal Point Picker ───────────────────────────────────────────────────────
+
+const FOCAL_POINTS: { label: string; value: string; x: string; y: string }[] = [
+  { label: 'Links boven',   value: 'left top',      x: '0%',   y: '0%'   },
+  { label: 'Midden boven',  value: 'center top',    x: '50%',  y: '0%'   },
+  { label: 'Rechts boven',  value: 'right top',     x: '100%', y: '0%'   },
+  { label: 'Links midden',  value: 'left center',   x: '0%',   y: '50%'  },
+  { label: 'Midden',        value: 'center',        x: '50%',  y: '50%'  },
+  { label: 'Rechts midden', value: 'right center',  x: '100%', y: '50%'  },
+  { label: 'Links onder',   value: 'left bottom',   x: '0%',   y: '100%' },
+  { label: 'Midden onder',  value: 'center bottom', x: '50%',  y: '100%' },
+  { label: 'Rechts onder',  value: 'right bottom',  x: '100%', y: '100%' },
+];
+
+function FocalPointPicker({ value, onChange, imageUrl }: {
+  value: string;
+  onChange: (v: string) => void;
+  imageUrl: string;
+}) {
+  const current = FOCAL_POINTS.find(p => p.value === value) ?? FOCAL_POINTS[4];
+
+  return (
+    <div>
+      <Label>Uitsnede afbeelding</Label>
+      <div className="rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+        {/* Live mini preview */}
+        <div
+          className="w-full h-20 bg-cover transition-all duration-300"
+          style={{ backgroundImage: `url(${imageUrl})`, backgroundPosition: value }}
+        />
+        {/* 3×3 grid */}
+        <div className="grid grid-cols-3 gap-px bg-gray-200 border-t border-gray-200">
+          {FOCAL_POINTS.map((pt) => (
+            <button
+              key={pt.value}
+              type="button"
+              title={pt.label}
+              onClick={() => onChange(pt.value)}
+              className={`relative h-8 flex items-center justify-center transition-colors ${
+                pt.value === value
+                  ? 'bg-forest-700'
+                  : 'bg-white hover:bg-gray-50'
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full transition-colors ${
+                pt.value === value ? 'bg-white' : 'bg-gray-300'
+              }`} />
+            </button>
+          ))}
+        </div>
+      </div>
+      <p className="text-[11px] text-gray-400 mt-1">{current.label}</p>
+    </div>
+  );
+}
+
 // ─── Pages ────────────────────────────────────────────────────────────────────
 
 export default function Pages() {
@@ -240,7 +297,7 @@ export default function Pages() {
 
   function openNew() {
     setEditing({
-      title: '', slug: '', hero_subtitle: '', hero_image: '', content: '',
+      title: '', slug: '', hero_subtitle: '', hero_image: '', hero_image_position: 'center', content: '',
       published: false, visibility: 'public', password: '',
       seo_title: '', seo_description: '',
     });
@@ -267,6 +324,7 @@ export default function Pages() {
       slug: editing.slug || slugify(editing.title ?? ''),
       hero_subtitle: editing.hero_subtitle ?? '',
       hero_image: editing.hero_image ?? '',
+      hero_image_position: editing.hero_image_position ?? 'center',
       content: editing.content ?? '',
       published: publish !== undefined ? publish : editing.published ?? false,
       visibility: editing.visibility ?? 'public',
@@ -360,7 +418,7 @@ export default function Pages() {
               style={editing.hero_image ? {
                 backgroundImage: `url(${editing.hero_image})`,
                 backgroundSize: 'cover',
-                backgroundPosition: 'center',
+                backgroundPosition: editing.hero_image_position ?? 'center',
               } : {}}
             >
               <div className="absolute inset-0 bg-gradient-to-b from-forest-950/60 to-forest-950/80 flex flex-col items-center justify-center text-white text-center px-6">
@@ -412,6 +470,13 @@ export default function Pages() {
                   previewHeight="h-28"
                 />
               </div>
+              {editing.hero_image && (
+                <FocalPointPicker
+                  value={editing.hero_image_position ?? 'center'}
+                  onChange={(v) => upd({ hero_image_position: v })}
+                  imageUrl={editing.hero_image}
+                />
+              )}
               <div>
                 <Label>Ondertitel</Label>
                 <Input value={editing.hero_subtitle ?? ''} onChange={(v) => upd({ hero_subtitle: v })} placeholder="Korte omschrijving..." />
