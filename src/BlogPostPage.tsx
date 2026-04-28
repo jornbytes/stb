@@ -107,10 +107,10 @@ function NavBar() {
         </nav>
 
         <a
-          href="/#lid-worden"
+          href="/meekijken"
           className="group hidden md:flex items-center gap-2 bg-scout-red hover:bg-scout-darkred text-white font-display font-semibold text-sm px-5 py-2.5 rounded-full tracking-wide uppercase transition-colors duration-200"
         >
-          Lid worden
+          Meekijken
           <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-200" />
         </a>
 
@@ -135,11 +135,11 @@ function NavBar() {
               </a>
             ))}
             <a
-              href="/#lid-worden"
+              href="/meekijken"
               onClick={() => setOpen(false)}
               className="mt-2 inline-flex items-center gap-2 bg-scout-red text-white font-display font-semibold text-sm px-5 py-3 rounded-full w-fit tracking-wide uppercase"
             >
-              Lid worden <ArrowRight className="w-4 h-4" />
+              Meekijken <ArrowRight className="w-4 h-4" />
             </a>
           </nav>
         </div>
