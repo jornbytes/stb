@@ -30,6 +30,7 @@ interface Block {
   columns?: string[];
   mediaSrc?: string;
   mediaAlt?: string;
+  mediaPosition?: string;
   align?: 'left' | 'center' | 'right';
 }
 
@@ -192,33 +193,82 @@ function BlockPicker({ onPick, onClose }: { onPick: (t: BlockType) => void; onCl
   );
 }
 
+// ─── Focal point grid ─────────────────────────────────────────────────────────
+
+const FOCAL_POINTS = [
+  { label: 'Links boven',   value: 'left top' },
+  { label: 'Midden boven',  value: 'center top' },
+  { label: 'Rechts boven',  value: 'right top' },
+  { label: 'Links midden',  value: 'left center' },
+  { label: 'Midden',        value: 'center' },
+  { label: 'Rechts midden', value: 'right center' },
+  { label: 'Links onder',   value: 'left bottom' },
+  { label: 'Midden onder',  value: 'center bottom' },
+  { label: 'Rechts onder',  value: 'right bottom' },
+];
+
+function ImageFocalPicker({ src, position, onChange }: {
+  src: string; position: string; onChange: (v: string) => void;
+}) {
+  const current = FOCAL_POINTS.find(p => p.value === position) ?? FOCAL_POINTS[4];
+  return (
+    <div className="rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+      <div
+        className="w-full h-16 bg-cover transition-all duration-300"
+        style={{ backgroundImage: `url(${src})`, backgroundPosition: position || 'center' }}
+      />
+      <div className="grid grid-cols-3 gap-px bg-gray-200 border-t border-gray-200">
+        {FOCAL_POINTS.map((pt) => (
+          <button
+            key={pt.value}
+            type="button"
+            title={pt.label}
+            onClick={() => onChange(pt.value)}
+            className={`h-7 flex items-center justify-center transition-colors ${
+              pt.value === position ? 'bg-forest-700' : 'bg-white hover:bg-gray-50'
+            }`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${pt.value === position ? 'bg-white' : 'bg-gray-300'}`} />
+          </button>
+        ))}
+      </div>
+      <div className="px-2 py-1 text-[10px] text-gray-400">{current.label}</div>
+    </div>
+  );
+}
+
 // ─── Image input (uses shared ImagePicker) ───────────────────────────────────
 
-function ImageInput({ src, alt, onSrcChange, onAltChange }: {
-  src: string; alt: string;
+function ImageInput({ src, alt, position, onSrcChange, onAltChange, onPositionChange }: {
+  src: string; alt: string; position: string;
   onSrcChange: (v: string) => void;
   onAltChange: (v: string) => void;
+  onPositionChange: (v: string) => void;
 }) {
   const [showPicker, setShowPicker] = useState(false);
 
   return (
     <div className="space-y-2">
       {src ? (
-        <div className="rounded-lg overflow-hidden border border-gray-200">
-          <img src={src} alt={alt}
-            className="w-full object-cover max-h-48"
-            onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')} />
-          <div className="flex gap-2 px-3 py-2 bg-gray-50 border-t border-gray-100">
-            <button type="button" onClick={() => setShowPicker(true)}
-              className="flex-1 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-100 transition">
-              Wijzigen
-            </button>
-            <button type="button" onClick={() => onSrcChange('')}
-              className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 transition">
-              Verwijderen
-            </button>
+        <>
+          <div className="rounded-lg overflow-hidden border border-gray-200">
+            <img src={src} alt={alt}
+              className="w-full object-cover max-h-48"
+              style={{ objectPosition: position || 'center' }}
+              onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')} />
+            <div className="flex gap-2 px-3 py-2 bg-gray-50 border-t border-gray-100">
+              <button type="button" onClick={() => setShowPicker(true)}
+                className="flex-1 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-100 transition">
+                Wijzigen
+              </button>
+              <button type="button" onClick={() => onSrcChange('')}
+                className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 transition">
+                Verwijderen
+              </button>
+            </div>
           </div>
-        </div>
+          <ImageFocalPicker src={src} position={position || 'center'} onChange={onPositionChange} />
+        </>
       ) : (
         <button type="button" onClick={() => setShowPicker(true)}
           className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-lg py-6 text-sm text-gray-400 hover:border-gray-400 hover:text-gray-600 transition">
@@ -269,9 +319,10 @@ function BlockRow({ block, index, total, onChange, onMove, onDelete, onInsertAft
   } else if (block.type === 'image') {
     body = (
       <ImageInput
-        src={block.mediaSrc ?? ''} alt={block.mediaAlt ?? ''}
+        src={block.mediaSrc ?? ''} alt={block.mediaAlt ?? ''} position={block.mediaPosition ?? 'center'}
         onSrcChange={(v) => upd({ mediaSrc: v })}
         onAltChange={(v) => upd({ mediaAlt: v })}
+        onPositionChange={(v) => upd({ mediaPosition: v })}
       />
     );
 
@@ -279,9 +330,10 @@ function BlockRow({ block, index, total, onChange, onMove, onDelete, onInsertAft
     const imgBox = (
       <div className="shrink-0 w-2/5">
         <ImageInput
-          src={block.mediaSrc ?? ''} alt={block.mediaAlt ?? ''}
+          src={block.mediaSrc ?? ''} alt={block.mediaAlt ?? ''} position={block.mediaPosition ?? 'center'}
           onSrcChange={(v) => upd({ mediaSrc: v })}
           onAltChange={(v) => upd({ mediaAlt: v })}
+          onPositionChange={(v) => upd({ mediaPosition: v })}
         />
       </div>
     );
@@ -578,7 +630,12 @@ export function renderBlocks(value: string): React.ReactNode {
         if (block.type === 'image') {
           return block.mediaSrc ? (
             <figure key={block.id}>
-              <img src={block.mediaSrc} alt={block.mediaAlt ?? ''} className="w-full rounded-2xl object-cover max-h-[480px]" />
+              <img
+                src={block.mediaSrc}
+                alt={block.mediaAlt ?? ''}
+                className="w-full rounded-2xl object-cover max-h-[480px]"
+                style={{ objectPosition: block.mediaPosition || 'center' }}
+              />
               {block.mediaAlt && <figcaption className="text-center text-xs text-gray-400 mt-2">{block.mediaAlt}</figcaption>}
             </figure>
           ) : null;
@@ -586,7 +643,12 @@ export function renderBlocks(value: string): React.ReactNode {
 
         if (block.type === 'media_left' || block.type === 'media_right') {
           const img = block.mediaSrc ? (
-            <img src={block.mediaSrc} alt={block.mediaAlt ?? ''} className="w-full rounded-xl object-cover h-full max-h-72" />
+            <img
+              src={block.mediaSrc}
+              alt={block.mediaAlt ?? ''}
+              className="w-full rounded-xl object-cover h-full max-h-72"
+              style={{ objectPosition: block.mediaPosition || 'center' }}
+            />
           ) : null;
           const txt = <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: block.content ?? '' }} />;
           return (
