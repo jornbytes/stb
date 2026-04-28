@@ -22,14 +22,15 @@ function getSessionId(): string {
   return sid;
 }
 
-function trackPageView(title: string) {
-  supabase.from('page_views').insert({
+async function trackPageView(title: string) {
+  const { error } = await supabase.from('page_views').insert({
     path,
     page_title: title,
     referrer: document.referrer || null,
     user_agent: navigator.userAgent || null,
     session_id: getSessionId(),
   });
+  if (error) console.error('[page_views insert]', error);
 }
 
 function Tracked({ title, children }: { title: string; children: ReactNode }) {
