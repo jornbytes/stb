@@ -31,6 +31,7 @@ interface Block {
   mediaSrc?: string;
   mediaAlt?: string;
   mediaPosition?: string;
+  mediaFit?: 'cover' | 'contain';
   align?: 'left' | 'center' | 'right';
 }
 
@@ -239,11 +240,12 @@ function ImageFocalPicker({ src, position, onChange }: {
 
 // ─── Image input (uses shared ImagePicker) ───────────────────────────────────
 
-function ImageInput({ src, alt, position, onSrcChange, onAltChange, onPositionChange }: {
-  src: string; alt: string; position: string;
+function ImageInput({ src, alt, position, fit, onSrcChange, onAltChange, onPositionChange, onFitChange }: {
+  src: string; alt: string; position: string; fit: 'cover' | 'contain';
   onSrcChange: (v: string) => void;
   onAltChange: (v: string) => void;
   onPositionChange: (v: string) => void;
+  onFitChange: (v: 'cover' | 'contain') => void;
 }) {
   const [showPicker, setShowPicker] = useState(false);
 
@@ -253,8 +255,8 @@ function ImageInput({ src, alt, position, onSrcChange, onAltChange, onPositionCh
         <>
           <div className="rounded-lg overflow-hidden border border-gray-200">
             <img src={src} alt={alt}
-              className="w-full object-cover max-h-48"
-              style={{ objectPosition: position || 'center' }}
+              className={`w-full ${fit === 'contain' ? 'object-contain max-h-96 bg-gray-50' : 'object-cover max-h-48'}`}
+              style={fit === 'cover' ? { objectPosition: position || 'center' } : undefined}
               onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')} />
             <div className="flex gap-2 px-3 py-2 bg-gray-50 border-t border-gray-100">
               <button type="button" onClick={() => setShowPicker(true)}
@@ -267,7 +269,20 @@ function ImageInput({ src, alt, position, onSrcChange, onAltChange, onPositionCh
               </button>
             </div>
           </div>
-          <ImageFocalPicker src={src} position={position || 'center'} onChange={onPositionChange} />
+          {/* Fit toggle */}
+          <div className="flex rounded-lg border border-gray-200 overflow-hidden bg-white">
+            <button type="button" onClick={() => onFitChange('contain')}
+              className={`flex-1 px-3 py-1.5 text-xs font-medium transition ${fit === 'contain' ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-50'}`}>
+              Volledig tonen
+            </button>
+            <button type="button" onClick={() => onFitChange('cover')}
+              className={`flex-1 px-3 py-1.5 text-xs font-medium transition border-l border-gray-200 ${fit === 'cover' ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-50'}`}>
+              Uitsnede
+            </button>
+          </div>
+          {fit === 'cover' && (
+            <ImageFocalPicker src={src} position={position || 'center'} onChange={onPositionChange} />
+          )}
         </>
       ) : (
         <button type="button" onClick={() => setShowPicker(true)}
@@ -319,10 +334,11 @@ function BlockRow({ block, index, total, onChange, onMove, onDelete, onInsertAft
   } else if (block.type === 'image') {
     body = (
       <ImageInput
-        src={block.mediaSrc ?? ''} alt={block.mediaAlt ?? ''} position={block.mediaPosition ?? 'center'}
+        src={block.mediaSrc ?? ''} alt={block.mediaAlt ?? ''} position={block.mediaPosition ?? 'center'} fit={block.mediaFit ?? 'cover'}
         onSrcChange={(v) => upd({ mediaSrc: v })}
         onAltChange={(v) => upd({ mediaAlt: v })}
         onPositionChange={(v) => upd({ mediaPosition: v })}
+        onFitChange={(v) => upd({ mediaFit: v })}
       />
     );
 
@@ -330,10 +346,11 @@ function BlockRow({ block, index, total, onChange, onMove, onDelete, onInsertAft
     const imgBox = (
       <div className="shrink-0 w-2/5">
         <ImageInput
-          src={block.mediaSrc ?? ''} alt={block.mediaAlt ?? ''} position={block.mediaPosition ?? 'center'}
+          src={block.mediaSrc ?? ''} alt={block.mediaAlt ?? ''} position={block.mediaPosition ?? 'center'} fit={block.mediaFit ?? 'cover'}
           onSrcChange={(v) => upd({ mediaSrc: v })}
           onAltChange={(v) => upd({ mediaAlt: v })}
           onPositionChange={(v) => upd({ mediaPosition: v })}
+          onFitChange={(v) => upd({ mediaFit: v })}
         />
       </div>
     );
@@ -633,8 +650,8 @@ export function renderBlocks(value: string): React.ReactNode {
               <img
                 src={block.mediaSrc}
                 alt={block.mediaAlt ?? ''}
-                className="w-full rounded-2xl object-cover max-h-[480px]"
-                style={{ objectPosition: block.mediaPosition || 'center' }}
+                className={`w-full rounded-2xl ${block.mediaFit === 'contain' ? 'object-contain' : 'object-cover max-h-[480px]'}`}
+                style={block.mediaFit !== 'contain' ? { objectPosition: block.mediaPosition || 'center' } : undefined}
               />
               {block.mediaAlt && <figcaption className="text-center text-xs text-gray-400 mt-2">{block.mediaAlt}</figcaption>}
             </figure>
@@ -646,8 +663,8 @@ export function renderBlocks(value: string): React.ReactNode {
             <img
               src={block.mediaSrc}
               alt={block.mediaAlt ?? ''}
-              className="w-full rounded-xl object-cover h-full max-h-72"
-              style={{ objectPosition: block.mediaPosition || 'center' }}
+              className={`w-full rounded-xl ${block.mediaFit === 'contain' ? 'object-contain' : 'object-cover h-full max-h-72'}`}
+              style={block.mediaFit !== 'contain' ? { objectPosition: block.mediaPosition || 'center' } : undefined}
             />
           ) : null;
           const txt = <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: block.content ?? '' }} />;
