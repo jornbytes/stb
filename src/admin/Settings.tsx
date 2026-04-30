@@ -116,6 +116,99 @@ function ContactEmailSection() {
   );
 }
 
+// ─── Sender settings section ─────────────────────────────────────────────────
+
+function SenderSettingsSection() {
+  const [fromName, setFromName] = useState('');
+  const [fromEmail, setFromEmail] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState<SaveStatus>('idle');
+  const [errorMsg, setErrorMsg] = useState('');
+
+  useEffect(() => {
+    supabase
+      .from('site_settings')
+      .select('key, value')
+      .in('key', ['mail_from_name', 'mail_from_email'])
+      .then(({ data }) => {
+        const map: Record<string, string> = {};
+        (data ?? []).forEach(r => { map[r.key] = r.value; });
+        setFromName(map.mail_from_name ?? '');
+        setFromEmail(map.mail_from_email ?? '');
+        setLoading(false);
+      });
+  }, []);
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setStatus('idle');
+    const rows = [
+      { key: 'mail_from_name',  value: fromName.trim(),  updated_at: new Date().toISOString() },
+      { key: 'mail_from_email', value: fromEmail.trim(), updated_at: new Date().toISOString() },
+    ];
+    const { error } = await supabase.from('site_settings').upsert(rows);
+    setSaving(false);
+    if (error) { setStatus('error'); setErrorMsg(error.message); }
+    else { setStatus('saved'); setTimeout(() => setStatus('idle'), 3000); }
+  }
+
+  const inputCls = 'w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 transition';
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center gap-2">
+          <Mail className="w-4 h-4 text-gray-500" />
+          <h3 className="font-semibold text-gray-900 text-sm">Afzenderinstellingen</h3>
+        </div>
+        <p className="text-xs text-gray-400 mt-1">
+          Naam en e-mailadres waarvan alle automatische mails (bevestigingen, uitnodigingen) worden verstuurd.
+        </p>
+      </div>
+      <form onSubmit={handleSave} className="p-6 space-y-4">
+        {loading ? (
+          <div className="space-y-3">
+            <div className="h-10 bg-gray-100 rounded-lg animate-pulse" />
+            <div className="h-10 bg-gray-100 rounded-lg animate-pulse" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs text-gray-500 mb-1.5">Afzendernaam</label>
+              <input
+                type="text"
+                value={fromName}
+                onChange={e => { setFromName(e.target.value); setStatus('idle'); }}
+                placeholder="bijv. Scouting Titus Brandsma"
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 mb-1.5">Afzender e-mailadres</label>
+              <input
+                type="email"
+                value={fromEmail}
+                onChange={e => { setFromEmail(e.target.value); setStatus('idle'); }}
+                placeholder="bijv. noreply@scoutingtitusbrandsma.nl"
+                className={inputCls}
+                autoComplete="off"
+              />
+            </div>
+          </div>
+        )}
+        {status === 'error' && (
+          <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 px-4 py-3 rounded-lg">
+            <AlertCircle className="w-4 h-4 shrink-0" /> {errorMsg}
+          </div>
+        )}
+        <StatusRow status={status} saving={saving} disabled={loading} />
+      </form>
+    </div>
+  );
+}
+
 // ─── Pexels section ──────────────────────────────────────────────────────────
 
 function PexelsSection() {
@@ -597,6 +690,7 @@ export default function Settings() {
 
       {tab === 'algemeen' && (
         <>
+          <SenderSettingsSection />
           <ContactEmailSection />
           <PexelsSection />
           <FooterLinksSection />

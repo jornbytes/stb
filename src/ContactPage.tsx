@@ -199,6 +199,26 @@ export default function ContactPage() {
     e.preventDefault();
     setSending(true);
     await supabase.from('contact_messages').insert({ fields: formValues });
+
+    const naam      = formValues['naam']      ?? formValues['name']    ?? '';
+    const emailAddr = formValues['email']     ?? '';
+    const onderwerp = formValues['onderwerp'] ?? formValues['subject'] ?? '';
+    const bericht   = formValues['bericht']   ?? formValues['message'] ?? '';
+
+    if (emailAddr) {
+      await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-contact-confirmation`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ naam, email: emailAddr, onderwerp, bericht }),
+        },
+      );
+    }
+
     setSending(false);
     setSent(true);
   }
