@@ -899,9 +899,9 @@ function OverOns({ content }: { content: SiteSettings }) {
 
             <div className="grid grid-cols-3 gap-4">
               {[
-                { icon: <Users className="w-5 h-5" />, title: 'Gemeenschap', text: 'Vriendschappen voor het leven.' },
-                { icon: <TreePine className="w-5 h-5" />, title: 'Natuur', text: 'De natuur is onze tweede thuis.' },
-                { icon: <Heart className="w-5 h-5" />, title: 'Vrijwilligers', text: 'Elke week klaar voor de jeugd.' },
+                { icon: <Users className="w-5 h-5" />, title: content.over_ons_val_1_title || 'Gemeenschap', text: content.over_ons_val_1_text || 'Vriendschappen voor het leven.' },
+                { icon: <TreePine className="w-5 h-5" />, title: content.over_ons_val_2_title || 'Natuur', text: content.over_ons_val_2_text || 'De natuur is onze tweede thuis.' },
+                { icon: <Heart className="w-5 h-5" />, title: content.over_ons_val_3_title || 'Vrijwilligers', text: content.over_ons_val_3_text || 'Elke week klaar voor de jeugd.' },
               ].map((v) => (
                 <div key={v.title} className="bg-forest-900/80 backdrop-blur rounded-xl p-4 border border-forest-800 hover:border-orange-500/30 hover:bg-forest-900 transition-all group">
                   <div className="text-orange-400 mb-2.5 group-hover:scale-110 transition-transform">{v.icon}</div>

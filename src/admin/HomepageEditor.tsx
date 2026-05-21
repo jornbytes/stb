@@ -239,7 +239,12 @@ const HERO_KEYS = [
   'hero_stat_2_value', 'hero_stat_2_label',
   'hero_stat_3_value', 'hero_stat_3_label',
 ];
-const OVER_ONS_KEYS = ['over_ons_title', 'over_ons_text_1', 'over_ons_text_2', 'over_ons_photo'];
+const OVER_ONS_KEYS = [
+  'over_ons_title', 'over_ons_text_1', 'over_ons_text_2', 'over_ons_photo',
+  'over_ons_val_1_title', 'over_ons_val_1_text',
+  'over_ons_val_2_title', 'over_ons_val_2_text',
+  'over_ons_val_3_title', 'over_ons_val_3_text',
+];
 const GEBOUW_KEYS = [
   'gebouw_title', 'gebouw_text', 'gebouw_photo',
   'gebouw_usp_1', 'gebouw_usp_2', 'gebouw_usp_3', 'gebouw_usp_4',
@@ -313,6 +318,12 @@ function HeroSection({ s, set }: { s: Settings; set: (k: string, v: string) => v
   );
 }
 
+const OVER_ONS_VAL_DEFAULTS = [
+  { title: 'Gemeenschap', text: 'Vriendschappen voor het leven.' },
+  { title: 'Natuur',      text: 'De natuur is onze tweede thuis.' },
+  { title: 'Vrijwilligers', text: 'Elke week klaar voor de jeugd.' },
+];
+
 function OverOnsSection({ s, set }: { s: Settings; set: (k: string, v: string) => void }) {
   return (
     <>
@@ -330,6 +341,26 @@ function OverOnsSection({ s, set }: { s: Settings; set: (k: string, v: string) =
         value={s.over_ons_photo ?? ''}
         onChange={(v) => set('over_ons_photo', v)}
       />
+      <div className="space-y-3">
+        <label className="block text-xs font-medium text-gray-500 tracking-widest uppercase">
+          Waardekaartjes (3 blokjes)
+        </label>
+        {[1, 2, 3].map((n) => (
+          <div key={n} className="bg-gray-50 border border-gray-100 rounded-lg p-3 space-y-2">
+            <p className="text-[11px] font-medium text-gray-400 uppercase tracking-widest">Blokje {n}</p>
+            <TextInput
+              value={s[`over_ons_val_${n}_title`] ?? ''}
+              onChange={(v) => set(`over_ons_val_${n}_title`, v)}
+              placeholder={OVER_ONS_VAL_DEFAULTS[n - 1].title}
+            />
+            <TextInput
+              value={s[`over_ons_val_${n}_text`] ?? ''}
+              onChange={(v) => set(`over_ons_val_${n}_text`, v)}
+              placeholder={OVER_ONS_VAL_DEFAULTS[n - 1].text}
+            />
+          </div>
+        ))}
+      </div>
     </>
   );
 }
