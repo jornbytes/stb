@@ -240,7 +240,10 @@ const HERO_KEYS = [
   'hero_stat_3_value', 'hero_stat_3_label',
 ];
 const OVER_ONS_KEYS = ['over_ons_title', 'over_ons_text_1', 'over_ons_text_2', 'over_ons_photo'];
-const GEBOUW_KEYS = ['gebouw_title', 'gebouw_text', 'gebouw_photo'];
+const GEBOUW_KEYS = [
+  'gebouw_title', 'gebouw_text', 'gebouw_photo',
+  'gebouw_usp_1', 'gebouw_usp_2', 'gebouw_usp_3', 'gebouw_usp_4',
+];
 const VIDEO_KEYS = ['video_youtube_id'];
 const CONTACT_KEYS = ['contact_address', 'contact_whatsapp', 'contact_hours'];
 const FOOTER_KEYS = ['footer_tagline'];
@@ -331,6 +334,13 @@ function OverOnsSection({ s, set }: { s: Settings; set: (k: string, v: string) =
   );
 }
 
+const GEBOUW_USP_DEFAULTS = [
+  'Meerdere activiteitenruimtes',
+  'Volwaardige keuken',
+  'Groot buitenterrein',
+  'Centrale locatie in Oldenzaal',
+];
+
 function GebouwSection({ s, set }: { s: Settings; set: (k: string, v: string) => void }) {
   return (
     <>
@@ -345,6 +355,19 @@ function GebouwSection({ s, set }: { s: Settings; set: (k: string, v: string) =>
         value={s.gebouw_photo ?? ''}
         onChange={(v) => set('gebouw_photo', v)}
       />
+      <div className="space-y-2">
+        <label className="block text-xs font-medium text-gray-500 tracking-widest uppercase mb-1.5">
+          Kenmerken (USPs)
+        </label>
+        {[1, 2, 3, 4].map((n) => (
+          <TextInput
+            key={n}
+            value={s[`gebouw_usp_${n}`] ?? ''}
+            onChange={(v) => set(`gebouw_usp_${n}`, v)}
+            placeholder={GEBOUW_USP_DEFAULTS[n - 1]}
+          />
+        ))}
+      </div>
     </>
   );
 }

@@ -1108,18 +1108,22 @@ function Gebouw({ content }: { content: SiteSettings }) {
 
             <ul className="space-y-3 mb-10">
               {[
-                { label: 'Meerdere activiteitenruimtes', icon: <Shield className="w-3.5 h-3.5" /> },
-                { label: 'Volwaardige keuken',           icon: <Star className="w-3.5 h-3.5" /> },
-                { label: 'Groot buitenterrein',           icon: <TreePine className="w-3.5 h-3.5" /> },
-                { label: 'Centrale locatie in Oldenzaal', icon: <MapPin className="w-3.5 h-3.5" /> },
-              ].map((item) => (
-                <li key={item.label} className="flex items-center gap-3 text-white/80 text-sm group">
-                  <div className="w-7 h-7 rounded-lg bg-scout-red/15 border border-scout-red/30 flex items-center justify-center flex-shrink-0 text-scout-red group-hover:bg-scout-red group-hover:text-white transition-all duration-200">
-                    {item.icon}
-                  </div>
-                  {item.label}
-                </li>
-              ))}
+                { key: 'gebouw_usp_1', fallback: 'Meerdere activiteitenruimtes', icon: <Shield className="w-3.5 h-3.5" /> },
+                { key: 'gebouw_usp_2', fallback: 'Volwaardige keuken',           icon: <Star className="w-3.5 h-3.5" /> },
+                { key: 'gebouw_usp_3', fallback: 'Groot buitenterrein',           icon: <TreePine className="w-3.5 h-3.5" /> },
+                { key: 'gebouw_usp_4', fallback: 'Centrale locatie in Oldenzaal', icon: <MapPin className="w-3.5 h-3.5" /> },
+              ].map((item) => {
+                const label = content[item.key] || item.fallback;
+                if (!label) return null;
+                return (
+                  <li key={item.key} className="flex items-center gap-3 text-white/80 text-sm group">
+                    <div className="w-7 h-7 rounded-lg bg-scout-red/15 border border-scout-red/30 flex items-center justify-center flex-shrink-0 text-scout-red group-hover:bg-scout-red group-hover:text-white transition-all duration-200">
+                      {item.icon}
+                    </div>
+                    {label}
+                  </li>
+                );
+              })}
             </ul>
 
             <a
@@ -1309,7 +1313,7 @@ function Nieuws() {
           const raw = p.post_date ?? p.published_at ?? p.created_at;
           return new Date(raw.length === 10 ? raw + 'T00:00:00' : raw).getTime();
         };
-        const sorted = (data ?? []).sort((a, b) => effectiveDate(b) - effectiveDate(a)).slice(0, 6);
+        const sorted = (data ?? []).sort((a, b) => effectiveDate(b) - effectiveDate(a)).slice(0, 3);
         setPosts(sorted);
         setLoading(false);
       });

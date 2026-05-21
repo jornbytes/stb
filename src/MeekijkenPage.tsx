@@ -224,7 +224,7 @@ type FormState = 'idle' | 'submitting' | 'success' | 'error';
 
 function AanmeldFormulier({ fs }: { fs: FormSettings }) {
   const [naam, setNaam] = useState('');
-  const [leeftijd, setLeeftijd] = useState('');
+  const [geboortedatum, setGeboortedatum] = useState('');
   const [email, setEmail] = useState('');
   const [telefoon, setTelefoon] = useState('');
   const [opmerking, setOpmerking] = useState('');
@@ -234,8 +234,7 @@ function AanmeldFormulier({ fs }: { fs: FormSettings }) {
   function validate() {
     const e: Record<string, string> = {};
     if (!naam.trim()) e.naam = 'Naam is verplicht';
-    if (!leeftijd || isNaN(Number(leeftijd)) || Number(leeftijd) < 4 || Number(leeftijd) > 25)
-      e.leeftijd = 'Voer een geldige leeftijd in (4–25)';
+    if (!geboortedatum) e.geboortedatum = 'Geboortedatum is verplicht';
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       e.email = 'Voer een geldig e-mailadres in';
     if (!telefoon.trim()) e.telefoon = 'Telefoonnummer is verplicht';
@@ -250,7 +249,7 @@ function AanmeldFormulier({ fs }: { fs: FormSettings }) {
     setState('submitting');
     const { error } = await supabase.from('meekijken_requests').insert({
       naam: naam.trim(),
-      leeftijd: Number(leeftijd),
+      geboortedatum: geboortedatum || null,
       email: email.trim(),
       telefoon: telefoon.trim(),
       opmerking: opmerking.trim(),
@@ -271,7 +270,7 @@ function AanmeldFormulier({ fs }: { fs: FormSettings }) {
             naam: naam.trim(),
             email: email.trim(),
             telefoon: telefoon.trim(),
-            leeftijd: leeftijd ? String(leeftijd) : '',
+            geboortedatum: geboortedatum || '',
             opmerking: opmerking.trim(),
           },
         }),
@@ -297,7 +296,7 @@ function AanmeldFormulier({ fs }: { fs: FormSettings }) {
         </h3>
         <p className="text-gray-500 text-sm max-w-sm leading-relaxed">{fs.successText}</p>
         <button
-          onClick={() => { setState('idle'); setNaam(''); setLeeftijd(''); setEmail(''); setTelefoon(''); setOpmerking(''); }}
+          onClick={() => { setState('idle'); setNaam(''); setGeboortedatum(''); setEmail(''); setTelefoon(''); setOpmerking(''); }}
           className="mt-2 text-sm text-forest-700 hover:text-forest-900 font-medium transition-colors"
         >
           Nog een aanmelding doen
@@ -334,24 +333,21 @@ function AanmeldFormulier({ fs }: { fs: FormSettings }) {
           {errors.naam && <p className="mt-1 text-xs text-red-500">{errors.naam}</p>}
         </div>
 
-        {/* Leeftijd */}
+        {/* Geboortedatum */}
         <div>
           <label className="block text-xs font-semibold text-gray-600 uppercase tracking-widest mb-1.5">
-            Leeftijd <span className="text-scout-red">*</span>
+            Geboortedatum <span className="text-scout-red">*</span>
           </label>
           <div className="relative">
             <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             <input
-              type="number"
-              min={4}
-              max={25}
-              value={leeftijd}
-              onChange={e => { setLeeftijd(e.target.value); setErrors(p => ({ ...p, leeftijd: '' })); }}
-              placeholder="bijv. 9"
-              className={inputCls('leeftijd') + ' pl-10'}
+              type="date"
+              value={geboortedatum}
+              onChange={e => { setGeboortedatum(e.target.value); setErrors(p => ({ ...p, geboortedatum: '' })); }}
+              className={inputCls('geboortedatum') + ' pl-10'}
             />
           </div>
-          {errors.leeftijd && <p className="mt-1 text-xs text-red-500">{errors.leeftijd}</p>}
+          {errors.geboortedatum && <p className="mt-1 text-xs text-red-500">{errors.geboortedatum}</p>}
         </div>
 
         {/* Telefoon */}
