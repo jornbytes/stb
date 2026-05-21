@@ -885,7 +885,7 @@ function OverOns({ content }: { content: SiteSettings }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center pb-20 pt-14">
           <div>
             <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 text-orange-400 font-medium text-xs tracking-widest uppercase px-4 py-2 rounded-full mb-6">
-              Over ons
+              {content.over_ons_badge_label || 'Over ons'}
             </div>
             <h2 className="font-display text-white text-5xl md:text-6xl font-bold uppercase leading-[1.05] mb-8">
               {title}
@@ -946,8 +946,8 @@ function OverOns({ content }: { content: SiteSettings }) {
               className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-scout-red border-4 border-scout-darkred
                 flex flex-col items-center justify-center shadow-2xl badge-wobble z-30"
             >
-              <span className="font-display text-white text-2xl font-bold leading-none">70</span>
-              <span className="font-display text-white/80 text-[8px] uppercase tracking-widest leading-none">jaar</span>
+              <span className="font-display text-white text-2xl font-bold leading-none">{content.over_ons_stamp_number || '70'}</span>
+              <span className="font-display text-white/80 text-[8px] uppercase tracking-widest leading-none">{content.over_ons_stamp_label || 'jaar'}</span>
             </div>
           </div>
         </div>

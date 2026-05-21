@@ -241,6 +241,8 @@ const HERO_KEYS = [
 ];
 const OVER_ONS_KEYS = [
   'over_ons_title', 'over_ons_text_1', 'over_ons_text_2', 'over_ons_photo',
+  'over_ons_badge_label',
+  'over_ons_stamp_number', 'over_ons_stamp_label',
   'over_ons_val_1_title', 'over_ons_val_1_text',
   'over_ons_val_2_title', 'over_ons_val_2_text',
   'over_ons_val_3_title', 'over_ons_val_3_text',
@@ -327,8 +329,11 @@ const OVER_ONS_VAL_DEFAULTS = [
 function OverOnsSection({ s, set }: { s: Settings; set: (k: string, v: string) => void }) {
   return (
     <>
+      <Field label="Sectielabel (badge)">
+        <TextInput value={s.over_ons_badge_label ?? ''} onChange={(v) => set('over_ons_badge_label', v)} placeholder="Over ons" />
+      </Field>
       <Field label="Titel">
-        <TextInput value={s.over_ons_title ?? ''} onChange={(v) => set('over_ons_title', v)} />
+        <TextInput value={s.over_ons_title ?? ''} onChange={(v) => set('over_ons_title', v)} placeholder="Al meer dan 70 jaar avontuur" />
       </Field>
       <Field label="Alinea 1">
         <Textarea value={s.over_ons_text_1 ?? ''} onChange={(v) => set('over_ons_text_1', v)} rows={4} />
@@ -341,6 +346,14 @@ function OverOnsSection({ s, set }: { s: Settings; set: (k: string, v: string) =
         value={s.over_ons_photo ?? ''}
         onChange={(v) => set('over_ons_photo', v)}
       />
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Jubileumstempel — getal" hint='Groot getal op de rode stempel (bijv. "70")'>
+          <TextInput value={s.over_ons_stamp_number ?? ''} onChange={(v) => set('over_ons_stamp_number', v)} placeholder="70" />
+        </Field>
+        <Field label="Jubileumstempel — label" hint='Kleine tekst eronder (bijv. "jaar")'>
+          <TextInput value={s.over_ons_stamp_label ?? ''} onChange={(v) => set('over_ons_stamp_label', v)} placeholder="jaar" />
+        </Field>
+      </div>
       <div className="space-y-3">
         <label className="block text-xs font-medium text-gray-500 tracking-widest uppercase">
           Waardekaartjes (3 blokjes)
