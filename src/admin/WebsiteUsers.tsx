@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { UserPlus, Trash2, CreditCard as Edit2, X, Check, Shield, Newspaper, Users, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { UserPlus, Trash2, CreditCard as Edit2, X, Check, Shield, Newspaper, Users, Eye, EyeOff, AlertCircle, Lock } from 'lucide-react';
+
+const PROTECTED_EMAIL = 'jorn@stackblitz.com';
 
 type Role = 'admin' | 'blogposter' | 'lid';
 
@@ -343,22 +345,30 @@ export default function WebsiteUsers() {
                   <td className="px-5 py-3.5 text-gray-500 hidden sm:table-cell">{user.email}</td>
                   <td className="px-5 py-3.5"><RoleBadge role={user.role} /></td>
                   <td className="px-5 py-3.5">
-                    <div className="flex items-center justify-end gap-1">
-                      <button
-                        onClick={() => setEditUser(user)}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition"
-                        title="Bewerken"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => setDeleteId(user.id)}
-                        className="p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition"
-                        title="Verwijderen"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                    {user.email === PROTECTED_EMAIL ? (
+                      <div className="flex items-center justify-end">
+                        <span className="flex items-center gap-1 text-[11px] text-gray-400 px-2 py-1 rounded-lg bg-gray-50 border border-gray-100">
+                          <Lock className="w-3 h-3" /> Beveiligd
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => setEditUser(user)}
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition"
+                          title="Bewerken"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteId(user.id)}
+                          className="p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition"
+                          title="Verwijderen"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
