@@ -255,7 +255,28 @@ function AanmeldFormulier({ fs }: { fs: FormSettings }) {
       telefoon: telefoon.trim(),
       opmerking: opmerking.trim(),
     });
-    setState(error ? 'error' : 'success');
+    if (error) { setState('error'); return; }
+    setState('success');
+    fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-form-notification`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          formType: 'meekijken',
+          fields: {
+            naam: naam.trim(),
+            email: email.trim(),
+            telefoon: telefoon.trim(),
+            leeftijd: leeftijd ? String(leeftijd) : '',
+            opmerking: opmerking.trim(),
+          },
+        }),
+      },
+    ).catch(() => {});
   }
 
   const inputCls = (field: string) =>

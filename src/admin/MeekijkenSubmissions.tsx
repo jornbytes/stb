@@ -4,6 +4,7 @@ import {
   Mail, Phone, Calendar, MessageSquare, ChevronDown, ChevronUp,
   Inbox, Trash2, CheckCircle, AlertTriangle, X,
 } from 'lucide-react';
+import FormNotificationSubscribers from './FormNotificationSubscribers';
 
 type MeekijkenRequest = {
   id: string;
@@ -74,6 +75,11 @@ export default function MeekijkenSubmissions() {
 
   return (
     <div className="max-w-3xl">
+      {/* Notification subscribers */}
+      <div className="mb-6">
+        <FormNotificationSubscribers formType="meekijken" />
+      </div>
+
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">Meekijken aanmeldingen</h2>

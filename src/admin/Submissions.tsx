@@ -5,6 +5,7 @@ import {
   Inbox, Trash2, CheckCircle, Send, X, AlertTriangle,
   Bold, Italic, Underline, Link as LinkIcon,
 } from 'lucide-react';
+import FormNotificationSubscribers from './FormNotificationSubscribers';
 
 type Submission = {
   id: string;
@@ -82,6 +83,11 @@ export default function Submissions() {
 
   return (
     <div className="max-w-3xl">
+      {/* Notification subscribers */}
+      <div className="mb-6">
+        <FormNotificationSubscribers formType="membership" />
+      </div>
+
       {/* Header */}
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>

@@ -131,11 +131,29 @@ function LidWordenPopup({ onClose, content }: { onClose: () => void; content: Si
         opmerking: form.opmerking,
       },
     ]);
-    if (error) {
-      setStatus('error');
-    } else {
-      setStatus('success');
-    }
+    if (error) { setStatus('error'); return; }
+    setStatus('success');
+    fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-form-notification`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          formType: 'membership',
+          fields: {
+            naam: form.naam,
+            email: form.email,
+            telefoon: form.telefoon,
+            geboortedatum: form.geboortedatum || '',
+            speltak: form.speltak,
+            opmerking: form.opmerking,
+          },
+        }),
+      },
+    ).catch(() => {});
   };
 
   const inputCls =
