@@ -26,12 +26,13 @@ import WebsiteUsers from './WebsiteUsers';
 import NavMenu from './NavMenu';
 import Settings from './Settings';
 import HomepageEditor from './HomepageEditor';
+import OverOnsEditor from './OverOnsEditor';
 import ContactEditor from './ContactEditor';
 import ContactSubmissions from './ContactSubmissions';
 import MeekijkenSubmissions from './MeekijkenSubmissions';
 import Analytics from './Analytics';
 
-type Section = 'overview' | 'analytics' | 'blog' | 'pages' | 'submissions' | 'media' | 'users' | 'nav' | 'settings' | 'homepage' | 'contact' | 'contact-messages' | 'meekijken';
+type Section = 'overview' | 'analytics' | 'blog' | 'pages' | 'submissions' | 'media' | 'users' | 'nav' | 'settings' | 'homepage' | 'over-ons' | 'contact' | 'contact-messages' | 'meekijken';
 
 const nav: { id: Section; label: string; icon: React.ReactNode; desc: string; group?: string }[] = [
   { id: 'overview', label: 'Overzicht', icon: <LayoutDashboard className="w-4 h-4" />, desc: 'Dashboard' },
@@ -40,6 +41,7 @@ const nav: { id: Section; label: string; icon: React.ReactNode; desc: string; gr
   { id: 'meekijken', label: 'Meekijken', icon: <Inbox className="w-4 h-4" />, desc: 'Aanmeldingen via meekijken-formulier' },
   { id: 'contact-messages', label: 'Contactberichten', icon: <MessageCircle className="w-4 h-4" />, desc: 'Berichten via contactformulier' },
   { id: 'homepage', label: 'Homepagina', icon: <Type className="w-4 h-4" />, desc: 'Teksten & foto\'s homepagina', group: 'Inhoud' },
+  { id: 'over-ons', label: 'Over ons pagina', icon: <Type className="w-4 h-4" />, desc: 'Tijdlijn, citaat & waardenkaarten', group: 'Inhoud' },
   { id: 'contact', label: 'Contactpagina', icon: <MessageCircle className="w-4 h-4" />, desc: 'Contactgegevens & formulier', group: 'Inhoud' },
   { id: 'nav', label: 'Menu', icon: <Navigation className="w-4 h-4" />, desc: 'Navigatie aanpassen', group: 'Inhoud' },
   { id: 'pages', label: "Pagina's", icon: <FileText className="w-4 h-4" />, desc: "Pagina's beheren", group: 'Inhoud' },
@@ -189,6 +191,7 @@ export default function AdminDashboard() {
           {section === 'overview' && <Overview onNavigate={setSection} submissionCount={submissionCount} />}
           {section === 'analytics' && <Analytics />}
           {section === 'homepage' && <HomepageEditor />}
+          {section === 'over-ons' && <OverOnsEditor />}
           {section === 'contact' && <ContactEditor />}
           {section === 'contact-messages' && <ContactSubmissions />}
           {section === 'meekijken' && <MeekijkenSubmissions />}

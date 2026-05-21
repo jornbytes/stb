@@ -191,46 +191,69 @@ function Footer() {
 
 // ─── Over Ons Page Layout ─────────────────────────────────────────────────────
 
-const TIMELINE = [
-  {
-    year: '1930s',
-    title: 'De eerste stappen',
-    text: 'Op bescheiden schaal ontstaat scouting in Oldenzaal. De padvinderij vindt langzaam zijn weg naar de jeugd van de stad.',
-    icon: <MapPin className="w-4 h-4" />,
-  },
-  {
-    year: '1940–45',
-    title: 'Verboden avontuur',
-    text: 'De bezetter verbiedt samenscholing. De wekelijkse bijeenkomsten stoppen gedwongen — maar de geest van de scouting blijft leven.',
-    icon: <Shield className="w-4 h-4" />,
-  },
-  {
-    year: '1945',
-    title: 'Wedergeboorte',
-    text: 'Direct na de bevrijding blazen de Oldenzaalse parochies de padvinderij nieuw leven in. Drie groepen worden opgericht: de Paulusgroep, St. Tarcisiusgroep en St. Agnesgroep.',
-    icon: <Flame className="w-4 h-4" />,
-  },
-  {
-    year: '1970s',
-    title: 'Fusie & nieuwe thuis',
-    text: 'Na een strijd om de locatie aan de Bleekstraat fuseren de Paulus- en Tarcisiusgroep. Scouting Titus Brandsma is geboren. Het ledenantal schiet omhoog.',
-    icon: <Users className="w-4 h-4" />,
-  },
-  {
-    year: '1980',
-    title: 'Één grote familie',
-    text: 'De St. Agnesgroep sluit zich aan. Jongens en meisjes samen onder één dak aan de Potskampstraat — de hechte scoutingfamilie die we vandaag de dag zijn.',
-    icon: <TreePine className="w-4 h-4" />,
-  },
-  {
-    year: 'Vandaag',
-    title: '70+ jaar avontuur',
-    text: 'Met ruim 40 vrijwilligers en zes speltakken voor kinderen van 5 tot 21+ biedt Scouting Titus Brandsma elke week een avontuur om nooit te vergeten.',
-    icon: <Calendar className="w-4 h-4" />,
-  },
+const TIMELINE_ICONS = [
+  <MapPin className="w-4 h-4" />,
+  <Shield className="w-4 h-4" />,
+  <Flame className="w-4 h-4" />,
+  <Users className="w-4 h-4" />,
+  <TreePine className="w-4 h-4" />,
+  <Calendar className="w-4 h-4" />,
 ];
 
+const TIMELINE_DEFAULTS = [
+  { year: '1930s',   title: 'De eerste stappen',   text: 'Op bescheiden schaal ontstaat scouting in Oldenzaal. De padvinderij vindt langzaam zijn weg naar de jeugd van de stad.' },
+  { year: '1940–45', title: 'Verboden avontuur',    text: 'De bezetter verbiedt samenscholing. De wekelijkse bijeenkomsten stoppen gedwongen — maar de geest van de scouting blijft leven.' },
+  { year: '1945',    title: 'Wedergeboorte',         text: 'Direct na de bevrijding blazen de Oldenzaalse parochies de padvinderij nieuw leven in. Drie groepen worden opgericht: de Paulusgroep, St. Tarcisiusgroep en St. Agnesgroep.' },
+  { year: '1970s',   title: 'Fusie & nieuwe thuis', text: 'Na een strijd om de locatie aan de Bleekstraat fuseren de Paulus- en Tarcisiusgroep. Scouting Titus Brandsma is geboren. Het ledenantal schiet omhoog.' },
+  { year: '1980',    title: 'Één grote familie',     text: 'De St. Agnesgroep sluit zich aan. Jongens en meisjes samen onder één dak aan de Potskampstraat — de hechte scoutingfamilie die we vandaag de dag zijn.' },
+  { year: 'Vandaag', title: '70+ jaar avontuur',     text: 'Met ruim 40 vrijwilligers en zes speltakken voor kinderen van 5 tot 21+ biedt Scouting Titus Brandsma elke week een avontuur om nooit te vergeten.' },
+];
+
+const VALUES_DEFAULTS = [
+  { title: 'Gemeenschap',      text: 'Van Bever tot Stam — iedereen is welkom. We bouwen aan vriendschappen die een leven lang meegaan, gesmeed rond het kampvuur.',        accent: 'bg-amber-500',   icon: <Users className="w-7 h-7" /> },
+  { title: 'Natuur & avontuur', text: 'Bossen, rivieren en velden zijn onze speeltuin. We leren overleven, navigeren en verwonderen ons iedere week opnieuw.',              accent: 'bg-forest-600',  icon: <TreePine className="w-7 h-7" /> },
+  { title: 'Vrijwilligers',    text: 'Meer dan 40 gepassioneerde leiders staan elke week klaar. Zij geven hun vrije tijd om de volgende generatie te inspireren.',           accent: 'bg-scout-red',   icon: <Shield className="w-7 h-7" /> },
+];
+
+type OverOnsSettings = Record<string, string>;
+
+function useOverOnsSettings() {
+  const [s, setS] = useState<OverOnsSettings>({});
+  useEffect(() => {
+    supabase.from('site_settings').select('key, value')
+      .then(({ data }) => {
+        const m: OverOnsSettings = {};
+        (data ?? []).forEach(r => { m[r.key] = r.value ?? ''; });
+        setS(m);
+      });
+  }, []);
+  return s;
+}
+
 function OverOnsPageLayout({ page }: { page: { title: string; seo_title: string; hero_subtitle: string; hero_image: string; hero_image_position: string; slug: string } }) {
+  const s = useOverOnsSettings();
+
+  const stats = [
+    { v: s.overons_stat_1_value || '1945', l: s.overons_stat_1_label || 'Opgericht' },
+    { v: s.overons_stat_2_value || '70+',  l: s.overons_stat_2_label || 'Jaar avontuur' },
+    { v: s.overons_stat_3_value || '40+',  l: s.overons_stat_3_label || 'Vrijwilligers' },
+    { v: s.overons_stat_4_value || '6',    l: s.overons_stat_4_label || 'Speltakken' },
+  ];
+
+  const timeline = TIMELINE_DEFAULTS.map((d, i) => ({
+    year:  s[`overons_tl_${i+1}_year`]  || d.year,
+    title: s[`overons_tl_${i+1}_title`] || d.title,
+    text:  s[`overons_tl_${i+1}_text`]  || d.text,
+    icon:  TIMELINE_ICONS[i],
+  }));
+
+  const values = VALUES_DEFAULTS.map((d, i) => ({
+    title:  s[`overons_val_${i+1}_title`] || d.title,
+    text:   s[`overons_val_${i+1}_text`]  || d.text,
+    accent: d.accent,
+    icon:   d.icon,
+  }));
+
   return (
     <div className="min-h-screen bg-forest-950">
       <AdminTopbar pageSlug={page.slug} />
@@ -240,33 +263,25 @@ function OverOnsPageLayout({ page }: { page: { title: string; seo_title: string;
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <div className="relative overflow-hidden" style={{ minHeight: '560px', display: 'flex', flexDirection: 'column' }}>
 
-        {/* Background photo or gradient */}
         {page.hero_image ? (
           <div
             className="absolute inset-0 bg-cover"
             style={{ backgroundImage: `url(${page.hero_image})`, backgroundPosition: page.hero_image_position || 'center', animation: 'heroZoom 16s ease-out forwards', transform: 'scale(1.06)' }}
           />
         ) : (
-          <>
-            <img
-              src="/jubileum_groepsfoto.jpg"
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover object-top"
-              style={{ animation: 'heroZoom 20s ease-out forwards', transform: 'scale(1.06)' }}
-            />
-          </>
+          <img
+            src="/jubileum_groepsfoto.jpg"
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover object-top"
+            style={{ animation: 'heroZoom 20s ease-out forwards', transform: 'scale(1.06)' }}
+          />
         )}
 
-        {/* Layered overlays */}
         <div className="absolute inset-0 bg-gradient-to-b from-forest-950/55 via-forest-950/30 to-forest-950" />
         <div className="absolute inset-0 bg-gradient-to-r from-forest-950/70 via-transparent to-forest-950/30" />
-
-        {/* Grain */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundSize: '200px 200px' }}
         />
-
-        {/* Pine silhouettes */}
         <div className="absolute bottom-0 left-0 right-0 pointer-events-none overflow-hidden opacity-[0.09]">
           <svg viewBox="0 0 1440 120" className="w-full" preserveAspectRatio="xMidYMax slice">
             {[0,130,260,390,520,650,780,910,1040,1170,1300].map((x, i) => (
@@ -275,12 +290,11 @@ function OverOnsPageLayout({ page }: { page: { title: string; seo_title: string;
           </svg>
         </div>
 
-        {/* Hero content */}
         <div className="relative z-10 flex-1 flex flex-col justify-end px-6 pb-20 pt-40 max-w-7xl mx-auto w-full">
           <div className="inline-flex items-center gap-2 bg-orange-500/15 border border-orange-500/25 text-orange-400 font-medium text-xs tracking-widest uppercase px-4 py-2 rounded-full mb-5 w-fit"
             style={{ animation: 'fadeSlideUp 0.5s 0.1s ease both' }}
           >
-            Scouting Titus Brandsma · Oldenzaal
+            {s.overons_hero_badge || 'Scouting Titus Brandsma · Oldenzaal'}
           </div>
           <h1
             className="font-display font-bold text-white uppercase leading-none mb-5"
@@ -292,20 +306,14 @@ function OverOnsPageLayout({ page }: { page: { title: string; seo_title: string;
             className="text-white/55 text-lg max-w-xl leading-relaxed font-light"
             style={{ animation: 'fadeSlideUp 0.6s 0.25s ease both' }}
           >
-            {page.hero_subtitle || 'Meer dan 70 jaar kampvuren, vriendschappen en avontuur in het hart van Oldenzaal.'}
+            {page.hero_subtitle || s.overons_hero_subtitle || 'Meer dan 70 jaar kampvuren, vriendschappen en avontuur in het hart van Oldenzaal.'}
           </p>
 
-          {/* Stats row */}
           <div className="flex flex-wrap gap-6 mt-10" style={{ animation: 'fadeSlideUp 0.6s 0.35s ease both' }}>
-            {[
-              { v: '1945', l: 'Opgericht' },
-              { v: '70+', l: 'Jaar avontuur' },
-              { v: '40+', l: 'Vrijwilligers' },
-              { v: '6', l: 'Speltakken' },
-            ].map(s => (
-              <div key={s.l} className="text-center">
-                <div className="font-display text-2xl font-bold text-orange-400 leading-none">{s.v}</div>
-                <div className="text-white/40 text-xs uppercase tracking-widest mt-0.5">{s.l}</div>
+            {stats.map(st => (
+              <div key={st.l} className="text-center">
+                <div className="font-display text-2xl font-bold text-orange-400 leading-none">{st.v}</div>
+                <div className="text-white/40 text-xs uppercase tracking-widest mt-0.5">{st.l}</div>
               </div>
             ))}
           </div>
@@ -314,8 +322,6 @@ function OverOnsPageLayout({ page }: { page: { title: string; seo_title: string;
 
       {/* ── Timeline section ──────────────────────────────────────────────── */}
       <div className="relative bg-forest-950 px-6 py-24">
-
-        {/* Starfield */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
           {[[80,30],[220,70],[420,20],[680,55],[900,35],[1100,60],[1280,25],[150,130],[500,110],[750,140],[1050,100],[1350,120]].map(([x,y],i) => (
             <div key={i} className="absolute rounded-full bg-white"
@@ -327,25 +333,21 @@ function OverOnsPageLayout({ page }: { page: { title: string; seo_title: string;
         <div className="max-w-4xl mx-auto relative z-10">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 text-orange-400 font-medium text-xs tracking-widest uppercase px-4 py-2 rounded-full mb-4">
-              Onze geschiedenis
+              {s.overons_tl_badge || 'Onze geschiedenis'}
             </div>
             <h2 className="font-display text-white text-4xl md:text-5xl font-bold uppercase leading-tight">
-              Van vonk tot vlam
+              {s.overons_tl_title || 'Van vonk tot vlam'}
             </h2>
           </div>
 
-          {/* Timeline */}
           <div className="relative">
-            {/* Vertical line */}
             <div className="absolute left-[28px] md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-forest-700 to-transparent md:-translate-x-px" />
-
             <div className="space-y-10">
-              {TIMELINE.map((item, i) => (
+              {timeline.map((item, i) => (
                 <div
-                  key={item.year}
+                  key={i}
                   className={`relative flex gap-6 md:gap-0 ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}
                 >
-                  {/* Text block */}
                   <div className={`md:w-[calc(50%-2.5rem)] pl-14 md:pl-0 ${i % 2 === 0 ? 'md:pr-12 md:text-right' : 'md:pl-12'}`}>
                     <div className={`inline-flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full mb-2 ${i % 2 === 0 ? 'md:ml-auto' : ''}`}>
                       {item.year}
@@ -353,15 +355,11 @@ function OverOnsPageLayout({ page }: { page: { title: string; seo_title: string;
                     <h3 className="font-display text-white font-bold text-lg uppercase tracking-wide mb-2">{item.title}</h3>
                     <p className="text-white/50 text-sm leading-relaxed">{item.text}</p>
                   </div>
-
-                  {/* Center dot */}
                   <div className="absolute left-0 md:left-1/2 top-1 md:-translate-x-1/2 flex-shrink-0">
                     <div className="w-14 h-14 md:w-10 md:h-10 rounded-full bg-forest-900 border-2 border-orange-500/50 flex items-center justify-center text-orange-400 shadow-lg shadow-orange-900/20">
                       {item.icon}
                     </div>
                   </div>
-
-                  {/* Empty spacer for opposite side */}
                   <div className="hidden md:block md:w-[calc(50%-2.5rem)]" />
                 </div>
               ))}
@@ -373,16 +371,18 @@ function OverOnsPageLayout({ page }: { page: { title: string; seo_title: string;
       {/* ── Photo + quote band ────────────────────────────────────────────── */}
       <div className="relative bg-forest-900 overflow-hidden">
         <img
-          src="/jubileum_groepsfoto.jpg"
-          alt="Jubileum groepsfoto"
+          src={s.overons_quote_photo || '/jubileum_groepsfoto.jpg'}
+          alt="Groepsfoto"
           className="w-full h-64 md:h-80 object-cover object-top opacity-30"
         />
         <div className="absolute inset-0 flex items-center justify-center px-6">
           <div className="text-center max-w-2xl">
             <div className="font-display text-white text-2xl md:text-4xl font-bold uppercase leading-tight mb-4">
-              "De natuur is onze tweede thuis"
+              "{s.overons_quote_text || 'De natuur is onze tweede thuis'}"
             </div>
-            <p className="text-white/45 text-sm tracking-wider uppercase">Scouting Titus Brandsma · Oldenzaal · Sinds 1945</p>
+            <p className="text-white/45 text-sm tracking-wider uppercase">
+              {s.overons_quote_sub || 'Scouting Titus Brandsma · Oldenzaal · Sinds 1945'}
+            </p>
           </div>
         </div>
       </div>
@@ -392,39 +392,20 @@ function OverOnsPageLayout({ page }: { page: { title: string; seo_title: string;
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <div className="inline-flex items-center gap-2 bg-forest-800/10 border border-forest-700/20 text-forest-700 font-medium text-xs tracking-widest uppercase px-4 py-2 rounded-full mb-4">
-              Wie zijn wij
+              {s.overons_values_badge || 'Wie zijn wij'}
             </div>
             <h2 className="font-display text-forest-950 text-4xl md:text-5xl font-bold uppercase leading-tight">
-              Meer dan een club
+              {s.overons_values_title || 'Meer dan een club'}
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                icon: <Users className="w-7 h-7" />,
-                title: 'Gemeenschap',
-                text: 'Van Bever tot Stam — iedereen is welkom. We bouwen aan vriendschappen die een leven lang meegaan, gesmeed rond het kampvuur.',
-                accent: 'bg-amber-500',
-              },
-              {
-                icon: <TreePine className="w-7 h-7" />,
-                title: 'Natuur & avontuur',
-                text: 'Bossen, rivieren en velden zijn onze speeltuin. We leren overleven, navigeren en verwonderen ons iedere week opnieuw.',
-                accent: 'bg-forest-600',
-              },
-              {
-                icon: <Shield className="w-7 h-7" />,
-                title: 'Vrijwilligers',
-                text: 'Meer dan 40 gepassioneerde leiders staan elke week klaar. Zij geven hun vrije tijd om de volgende generatie te inspireren.',
-                accent: 'bg-scout-red',
-              },
-            ].map(v => (
+            {values.map(v => (
               <div key={v.title} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group hover:-translate-y-1 transition-all duration-300">
                 <div className={`${v.accent} h-1.5 w-full`} />
                 <div className="p-7">
-                  <div className={`w-12 h-12 rounded-xl ${v.accent} bg-opacity-10 flex items-center justify-center mb-5`}
-                    style={{ backgroundColor: `color-mix(in srgb, currentColor 10%, transparent)` }}>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5`}
+                    style={{ backgroundColor: 'rgba(0,0,0,0.05)' }}>
                     <span className="text-forest-800">{v.icon}</span>
                   </div>
                   <h3 className="font-display text-forest-950 font-bold text-lg uppercase tracking-wide mb-3">{v.title}</h3>
@@ -440,16 +421,16 @@ function OverOnsPageLayout({ page }: { page: { title: string; seo_title: string;
       <div className="bg-forest-950 px-6 py-20 text-center">
         <div className="max-w-2xl mx-auto">
           <h2 className="font-display text-white text-3xl md:text-4xl font-bold uppercase mb-4">
-            Doe jij mee?
+            {s.overons_cta_title || 'Doe jij mee?'}
           </h2>
           <p className="text-white/50 mb-8 leading-relaxed">
-            Of je nu 5 of 50 jaar bent — er is een plek voor jou bij Scouting Titus Brandsma.
+            {s.overons_cta_text || 'Of je nu 5 of 50 jaar bent — er is een plek voor jou bij Scouting Titus Brandsma.'}
           </p>
           <a
             href="/#lid-worden"
             className="inline-flex items-center gap-2 bg-scout-red hover:bg-scout-darkred text-white font-display font-semibold text-sm px-8 py-4 rounded-full tracking-widest uppercase transition-colors duration-200 group"
           >
-            Lid worden
+            {s.overons_cta_button || 'Lid worden'}
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </a>
         </div>
