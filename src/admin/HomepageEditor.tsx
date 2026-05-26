@@ -256,16 +256,17 @@ const CONTACT_KEYS = ['contact_address', 'contact_whatsapp', 'contact_hours'];
 const FOOTER_KEYS = ['footer_tagline'];
 
 const SPELTAK_DEFAULTS = [
-  { naam: 'Bevers',     leeftijd: '5 – 7 jaar'   },
-  { naam: 'Welpen',     leeftijd: '7 – 11 jaar'  },
-  { naam: 'Scouts',     leeftijd: '11 – 15 jaar' },
-  { naam: 'Verkenners', leeftijd: '14 – 17 jaar' },
-  { naam: 'Explorers',  leeftijd: '17 – 21 jaar' },
-  { naam: 'Stam',       leeftijd: '21+'           },
+  { naam: 'Bevers',        leeftijd: '5 – 7 jaar'   },
+  { naam: 'Welpen',        leeftijd: '7 – 11 jaar'  },
+  { naam: 'Welpen Shanti', leeftijd: '7 – 11 jaar'  },
+  { naam: 'Scouts',        leeftijd: '11 – 15 jaar' },
+  { naam: 'Verkenners',    leeftijd: '14 – 17 jaar' },
+  { naam: "Pivo's",        leeftijd: '17 – 21 jaar' },
+  { naam: 'Explorers',     leeftijd: '17 – 21 jaar' },
+  { naam: 'Stam',          leeftijd: '21+'           },
 ];
-const SPELTAKKEN_KEYS = Array.from({ length: 6 }, (_, i) => [
+const SPELTAKKEN_KEYS = Array.from({ length: 8 }, (_, i) => [
   `speltak_${i}_naam`, `speltak_${i}_leeftijd`, `speltak_${i}_beschrijving`, `speltak_${i}_href`,
-  ...(i === 1 ? [`speltak_${i}_href_jongens`, `speltak_${i}_href_meisjes`] : []),
 ]).flat();
 
 function HeroSection({ s, set }: { s: Settings; set: (k: string, v: string) => void }) {
@@ -594,22 +595,6 @@ function SpeltakkenSection({ s, set }: { s: Settings; set: (k: string, v: string
             onChange={(v) => set(`speltak_${i}_href`, v)}
             pages={pages}
           />
-          {i === 1 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <LinkField
-                label='Link "Jongens"'
-                value={s[`speltak_${i}_href_jongens`] ?? ''}
-                onChange={(v) => set(`speltak_${i}_href_jongens`, v)}
-                pages={pages}
-              />
-              <LinkField
-                label='Link "Meisjes"'
-                value={s[`speltak_${i}_href_meisjes`] ?? ''}
-                onChange={(v) => set(`speltak_${i}_href_meisjes`, v)}
-                pages={pages}
-              />
-            </div>
-          )}
         </div>
       ))}
     </div>

@@ -276,7 +276,7 @@ function LidWordenPopup({ onClose, content }: { onClose: () => void; content: Si
                 className={inputCls}
               >
                 <option value="">Kies een speltak (of weet ik nog niet)</option>
-                {[0,1,2,3,4,5].map((i) => {
+                {[0,1,2,3,4,5,6,7].map((i) => {
                   const naam = content[`speltak_${i}_naam`];
                   const leeftijd = content[`speltak_${i}_leeftijd`];
                   if (!naam) return null;
@@ -727,24 +727,28 @@ function Campfire({ size = 200 }: { size?: number }) {
 
 // ─── Speltakken ───────────────────────────────────────────────────────────────
 
-const speltakTilts = [-2, 1.5, -1, 2, -1.5, 1];
+const speltakTilts = [-2, 1.5, -1.5, 1, -1, 2, -1.5, 1];
 const speltakColors = [
   { bg: 'bg-amber-50',   border: 'border-amber-200',   accent: 'bg-amber-500',   tag: 'bg-amber-100 text-amber-800' },
   { bg: 'bg-forest-50',  border: 'border-forest-200',  accent: 'bg-forest-600',  tag: 'bg-forest-100 text-forest-800' },
+  { bg: 'bg-pink-50',    border: 'border-pink-200',    accent: 'bg-pink-500',    tag: 'bg-pink-100 text-pink-800' },
   { bg: 'bg-red-50',     border: 'border-red-200',     accent: 'bg-scout-red',   tag: 'bg-red-100 text-red-800' },
   { bg: 'bg-khaki-50',   border: 'border-khaki-200',   accent: 'bg-khaki-700',   tag: 'bg-khaki-100 text-khaki-800' },
+  { bg: 'bg-blue-50',    border: 'border-blue-200',    accent: 'bg-blue-600',    tag: 'bg-blue-100 text-blue-800' },
   { bg: 'bg-forest-50',  border: 'border-forest-300',  accent: 'bg-forest-700',  tag: 'bg-forest-100 text-forest-900' },
   { bg: 'bg-stone-50',   border: 'border-stone-200',   accent: 'bg-forest-900',  tag: 'bg-stone-100 text-stone-700' },
 ];
 
 function Speltakken({ content }: { content: SiteSettings }) {
   const defaultSpeltakken = [
-    { naam: 'Bevers',     leeftijd: '5 – 7 jaar',   beschrijving: 'De allerkleinsten van onze groep. Bevers spelen samen, leren de natuur kennen en maken hun eerste stappen in het scouting-avontuur.' },
-    { naam: 'Welpen',     leeftijd: '7 – 11 jaar',  beschrijving: 'Welpen leren samenwerken, knutselen en spelen spannende buitenspellen. Ze groeien als een hecht roedel onder begeleiding van hun leiders.' },
-    { naam: 'Scouts',     leeftijd: '11 – 15 jaar', beschrijving: 'Scouts leren overleven in de natuur, werken aan badges en nemen deel aan nationale en internationale kampen. Avontuur staat centraal.' },
-    { naam: 'Verkenners', leeftijd: '14 – 17 jaar', beschrijving: 'Verkenners verkennen de wereld op eigen kracht. Ze plannen hun eigen activiteiten en kampen, en nemen verantwoordelijkheid.' },
-    { naam: 'Explorers',  leeftijd: '17 – 21 jaar', beschrijving: 'Explorers werken aan grote projecten, helpen bij jongere speltakken en bereiden zich voor op een rol als leider.' },
-    { naam: 'Stam',       leeftijd: '21+',           beschrijving: 'De Stam vormt het hart van de groep. Volwassen leden ondersteunen de organisatie, begeleiden jongeren en houden de traditie levend.' },
+    { naam: 'Bevers',         leeftijd: '5 – 7 jaar',   beschrijving: 'De allerkleinsten van onze groep. Bevers spelen samen, leren de natuur kennen en maken hun eerste stappen in het scouting-avontuur.' },
+    { naam: 'Welpen',         leeftijd: '7 – 11 jaar',  beschrijving: 'Welpen leren samenwerken, knutselen en spelen spannende buitenspellen. Ze groeien als een hecht roedel onder begeleiding van hun leiders.' },
+    { naam: 'Welpen Shanti',  leeftijd: '7 – 11 jaar',  beschrijving: 'Welpen Shanti is de meisjestak van de welpen. Samen spelen, knutselen en op avontuur gaan in een hechte vriendinnengroep.' },
+    { naam: 'Scouts',         leeftijd: '11 – 15 jaar', beschrijving: 'Scouts leren overleven in de natuur, werken aan badges en nemen deel aan nationale en internationale kampen. Avontuur staat centraal.' },
+    { naam: 'Verkenners',     leeftijd: '14 – 17 jaar', beschrijving: 'Verkenners verkennen de wereld op eigen kracht. Ze plannen hun eigen activiteiten en kampen, en nemen verantwoordelijkheid.' },
+    { naam: "Pivo's",         leeftijd: '17 – 21 jaar', beschrijving: "Pivo's staan op het snijpunt van jong en volwassen. Ze nemen grotere verantwoordelijkheid, organiseren activiteiten en bereiden zich voor op het leiderschap." },
+    { naam: 'Explorers',      leeftijd: '17 – 21 jaar', beschrijving: 'Explorers werken aan grote projecten, helpen bij jongere speltakken en bereiden zich voor op een rol als leider.' },
+    { naam: 'Stam',           leeftijd: '21+',           beschrijving: 'De Stam vormt het hart van de groep. Volwassen leden ondersteunen de organisatie, begeleiden jongeren en houden de traditie levend.' },
   ];
 
   const loaded = Object.keys(content).length > 0;
@@ -752,9 +756,7 @@ function Speltakken({ content }: { content: SiteSettings }) {
     naam:         (loaded ? content[`speltak_${i}_naam`]         || d.naam         : ''),
     leeftijd:     (loaded ? content[`speltak_${i}_leeftijd`]     || d.leeftijd     : ''),
     beschrijving: (loaded ? content[`speltak_${i}_beschrijving`] || d.beschrijving : ''),
-    href:         content[`speltak_${i}_href`]         || '',
-    hrefJongens:  content[`speltak_${i}_href_jongens`] || '',
-    hrefMeisjes:  content[`speltak_${i}_href_meisjes`] || '',
+    href:         content[`speltak_${i}_href`] || '',
   }));
 
   return (
@@ -787,8 +789,7 @@ function Speltakken({ content }: { content: SiteSettings }) {
           {cards.map((s, i) => {
             const c = speltakColors[i];
             const tilt = speltakTilts[i];
-            const hasGenderLinks = s.hrefJongens || s.hrefMeisjes;
-            const cardCls = `group relative ${c.bg} ${c.border} border-2 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 ${(!hasGenderLinks && s.href) ? 'cursor-pointer' : 'cursor-default'}`;
+            const cardCls = `group relative ${c.bg} ${c.border} border-2 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 ${s.href ? 'cursor-pointer' : 'cursor-default'}`;
 
             const cardContent = (
               <div
@@ -804,38 +805,14 @@ function Speltakken({ content }: { content: SiteSettings }) {
                 <div className="p-7 pt-5">
                   <h3 className="font-display text-forest-950 text-3xl font-bold uppercase mb-3 leading-none">{s.naam}</h3>
                   <p className="text-forest-600 text-sm leading-relaxed mb-5">{s.beschrijving}</p>
-                  {hasGenderLinks ? (
-                    <div className="flex gap-3">
-                      {s.hrefJongens && (
-                        <a
-                          href={s.hrefJongens}
-                          onClick={e => e.stopPropagation()}
-                          className="flex items-center gap-1.5 text-scout-red font-semibold text-sm hover:gap-3 transition-all duration-200"
-                        >
-                          Jongens <ChevronRight className="w-4 h-4" />
-                        </a>
-                      )}
-                      {s.hrefMeisjes && (
-                        <a
-                          href={s.hrefMeisjes}
-                          onClick={e => e.stopPropagation()}
-                          className="flex items-center gap-1.5 text-scout-red font-semibold text-sm hover:gap-3 transition-all duration-200"
-                        >
-                          Meisjes <ChevronRight className="w-4 h-4" />
-                        </a>
-                      )}
-                    </div>
-                  ) : (
-                    <span className="flex items-center gap-1.5 text-scout-red font-semibold text-sm group-hover:gap-3 transition-all duration-200">
-                      Meer weten <ChevronRight className="w-4 h-4" />
-                    </span>
-                  )}
+                  <span className="flex items-center gap-1.5 text-scout-red font-semibold text-sm group-hover:gap-3 transition-all duration-200">
+                    Meer weten <ChevronRight className="w-4 h-4" />
+                  </span>
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/5 rounded-b-2xl" />
               </div>
             );
 
-            if (hasGenderLinks) return <div key={i}>{cardContent}</div>;
             return s.href ? (
               <a key={i} href={s.href}>{cardContent}</a>
             ) : (
