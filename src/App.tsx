@@ -749,19 +749,27 @@ function SpeltakCarousel({ cards, colors, tilts }: { cards: SpeltakCard[]; color
   const dragStartX = useRef(0);
   const dragStartScroll = useRef(0);
 
+  const getCardW = () => {
+    const el = trackRef.current;
+    if (!el) return 280 + 24;
+    const first = el.children[1] as HTMLElement | undefined; // skip leading spacer
+    return first ? first.offsetWidth + 24 : 280 + 24;
+  };
+
   const onScroll = () => {
     const el = trackRef.current;
     if (!el) return;
-    const cardW = el.firstElementChild ? (el.firstElementChild as HTMLElement).offsetWidth + 24 : 280;
-    setActiveIdx(Math.round(el.scrollLeft / cardW));
+    setActiveIdx(Math.round(el.scrollLeft / getCardW()));
   };
 
   const scrollTo = (idx: number) => {
     const el = trackRef.current;
     if (!el) return;
-    const cardW = (el.firstElementChild as HTMLElement)?.offsetWidth + 24 || 280;
-    el.scrollTo({ left: idx * cardW, behavior: 'smooth' });
+    el.scrollTo({ left: idx * getCardW(), behavior: 'smooth' });
   };
+
+  const scrollPrev = () => scrollTo(Math.max(0, activeIdx - 1));
+  const scrollNext = () => scrollTo(Math.min(cards.length - 1, activeIdx + 1));
 
   const onMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
@@ -779,8 +787,28 @@ function SpeltakCarousel({ cards, colors, tilts }: { cards: SpeltakCard[]; color
   return (
     <div className="relative">
       {/* Fade edges */}
-      <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 z-10 bg-gradient-to-r from-scout-cream to-transparent" />
-      <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 z-10 bg-gradient-to-l from-scout-cream to-transparent" />
+      <div className="pointer-events-none absolute left-0 top-0 bottom-16 w-20 z-10 bg-gradient-to-r from-scout-cream to-transparent" />
+      <div className="pointer-events-none absolute right-0 top-0 bottom-16 w-20 z-10 bg-gradient-to-l from-scout-cream to-transparent" />
+
+      {/* Prev arrow */}
+      <button
+        onClick={scrollPrev}
+        disabled={activeIdx === 0}
+        className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white border-2 border-forest-200 shadow-lg flex items-center justify-center text-forest-700 hover:bg-scout-red hover:border-scout-red hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-all duration-200"
+        aria-label="Vorige speltak"
+      >
+        <ChevronRight className="w-5 h-5 rotate-180" />
+      </button>
+
+      {/* Next arrow */}
+      <button
+        onClick={scrollNext}
+        disabled={activeIdx >= cards.length - 1}
+        className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white border-2 border-forest-200 shadow-lg flex items-center justify-center text-forest-700 hover:bg-scout-red hover:border-scout-red hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-all duration-200"
+        aria-label="Volgende speltak"
+      >
+        <ChevronRight className="w-5 h-5" />
+      </button>
 
       <div
         ref={trackRef}
