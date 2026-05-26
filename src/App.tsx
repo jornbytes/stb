@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Menu,
   X,
@@ -739,6 +739,110 @@ const speltakColors = [
   { bg: 'bg-stone-50',   border: 'border-stone-200',   accent: 'bg-forest-900',  tag: 'bg-stone-100 text-stone-700' },
 ];
 
+type SpeltakCard = { naam: string; leeftijd: string; beschrijving: string; href: string };
+type SpeltakColor = { bg: string; border: string; accent: string; tag: string };
+
+function SpeltakCarousel({ cards, colors, tilts }: { cards: SpeltakCard[]; colors: SpeltakColor[]; tilts: number[] }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartX = useRef(0);
+  const dragStartScroll = useRef(0);
+
+  const onScroll = () => {
+    const el = trackRef.current;
+    if (!el) return;
+    const cardW = el.firstElementChild ? (el.firstElementChild as HTMLElement).offsetWidth + 24 : 280;
+    setActiveIdx(Math.round(el.scrollLeft / cardW));
+  };
+
+  const scrollTo = (idx: number) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const cardW = (el.firstElementChild as HTMLElement)?.offsetWidth + 24 || 280;
+    el.scrollTo({ left: idx * cardW, behavior: 'smooth' });
+  };
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    dragStartX.current = e.pageX;
+    dragStartScroll.current = trackRef.current?.scrollLeft ?? 0;
+  };
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !trackRef.current) return;
+    trackRef.current.scrollLeft = dragStartScroll.current - (e.pageX - dragStartX.current);
+  };
+
+  const stopDrag = () => setIsDragging(false);
+
+  return (
+    <div className="relative">
+      {/* Fade edges */}
+      <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 z-10 bg-gradient-to-r from-scout-cream to-transparent" />
+      <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 z-10 bg-gradient-to-l from-scout-cream to-transparent" />
+
+      <div
+        ref={trackRef}
+        className="flex gap-6 overflow-x-auto pb-8 px-6 scroll-smooth"
+        style={{ scrollbarWidth: 'none', cursor: isDragging ? 'grabbing' : 'grab' }}
+        onScroll={onScroll}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={stopDrag}
+        onMouseLeave={stopDrag}
+      >
+        {/* Leading spacer so first card isn't flush left */}
+        <div className="shrink-0 w-4" />
+        {cards.map((s, i) => {
+          const c = colors[i];
+          const tilt = tilts[i];
+          const inner = (
+            <div
+              className={`group relative ${c.bg} ${c.border} border-2 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 w-64 shrink-0 select-none`}
+              style={{ transform: `rotate(${tilt}deg)`, transition: 'transform 0.3s ease, box-shadow 0.3s ease' }}
+              onMouseEnter={e => (e.currentTarget.style.transform = 'rotate(0deg) translateY(-8px) scale(1.03)')}
+              onMouseLeave={e => (e.currentTarget.style.transform = `rotate(${tilt}deg)`)}
+            >
+              <div className={`${c.accent} h-3`} />
+              <div className={`absolute top-5 right-4 ${c.tag} text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full`}>
+                {s.leeftijd}
+              </div>
+              <div className="p-6 pt-5">
+                <h3 className="font-display text-forest-950 text-2xl font-bold uppercase mb-2 leading-none">{s.naam}</h3>
+                <p className="text-forest-600 text-sm leading-relaxed mb-5 line-clamp-4">{s.beschrijving}</p>
+                <span className="flex items-center gap-1.5 text-scout-red font-semibold text-sm group-hover:gap-3 transition-all duration-200">
+                  Meer weten <ChevronRight className="w-4 h-4" />
+                </span>
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/5 rounded-b-2xl" />
+            </div>
+          );
+          return s.href ? (
+            <a key={i} href={s.href} className="shrink-0 py-6" draggable={false}>{inner}</a>
+          ) : (
+            <div key={i} className="shrink-0 py-6">{inner}</div>
+          );
+        })}
+        {/* Trailing spacer */}
+        <div className="shrink-0 w-4" />
+      </div>
+
+      {/* Dot indicators */}
+      <div className="flex justify-center gap-2 mt-2">
+        {cards.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => scrollTo(i)}
+            className={`rounded-full transition-all duration-300 ${i === activeIdx ? 'w-6 h-2.5 bg-scout-red' : 'w-2.5 h-2.5 bg-forest-300 hover:bg-forest-400'}`}
+            aria-label={`Naar ${cards[i].naam}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Speltakken({ content }: { content: SiteSettings }) {
   const defaultSpeltakken = [
     { naam: 'Bevers',         leeftijd: '5 – 7 jaar',   beschrijving: 'De allerkleinsten van onze groep. Bevers spelen samen, leren de natuur kennen en maken hun eerste stappen in het scouting-avontuur.' },
@@ -784,42 +888,8 @@ function Speltakken({ content }: { content: SiteSettings }) {
           </p>
         </div>
 
-        {/* Cards grid — alternating tilts */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-          {cards.map((s, i) => {
-            const c = speltakColors[i];
-            const tilt = speltakTilts[i];
-            const cardCls = `group relative ${c.bg} ${c.border} border-2 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 ${s.href ? 'cursor-pointer' : 'cursor-default'}`;
-
-            const cardContent = (
-              <div
-                className={cardCls}
-                style={{ transform: `rotate(${tilt}deg)`, transition: 'transform 0.3s ease, box-shadow 0.3s ease' }}
-                onMouseEnter={e => (e.currentTarget.style.transform = 'rotate(0deg) translateY(-8px) scale(1.02)')}
-                onMouseLeave={e => (e.currentTarget.style.transform = `rotate(${tilt}deg)`)}
-              >
-                <div className={`${c.accent} h-3`} />
-                <div className={`absolute top-5 right-4 ${c.tag} text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full`}>
-                  {s.leeftijd}
-                </div>
-                <div className="p-7 pt-5">
-                  <h3 className="font-display text-forest-950 text-3xl font-bold uppercase mb-3 leading-none">{s.naam}</h3>
-                  <p className="text-forest-600 text-sm leading-relaxed mb-5">{s.beschrijving}</p>
-                  <span className="flex items-center gap-1.5 text-scout-red font-semibold text-sm group-hover:gap-3 transition-all duration-200">
-                    Meer weten <ChevronRight className="w-4 h-4" />
-                  </span>
-                </div>
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/5 rounded-b-2xl" />
-              </div>
-            );
-
-            return s.href ? (
-              <a key={i} href={s.href}>{cardContent}</a>
-            ) : (
-              <div key={i}>{cardContent}</div>
-            );
-          })}
-        </div>
+        {/* Scroll hint dots */}
+        <SpeltakCarousel cards={cards} colors={speltakColors} tilts={speltakTilts} />
       </div>
     </section>
   );
