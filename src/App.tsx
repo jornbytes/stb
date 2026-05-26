@@ -799,7 +799,7 @@ function SpeltakCarousel({ cards, colors, tilts }: { cards: SpeltakCard[]; color
           const tilt = tilts[i];
           const inner = (
             <div
-              className={`group relative ${c.bg} ${c.border} border-2 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 w-64 shrink-0 select-none`}
+              className={`group relative ${c.bg} ${c.border} border-2 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 w-80 shrink-0 select-none`}
               style={{ transform: `rotate(${tilt}deg)`, transition: 'transform 0.3s ease, box-shadow 0.3s ease' }}
               onMouseEnter={e => (e.currentTarget.style.transform = 'rotate(0deg) translateY(-8px) scale(1.03)')}
               onMouseLeave={e => (e.currentTarget.style.transform = `rotate(${tilt}deg)`)}
