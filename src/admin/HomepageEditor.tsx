@@ -253,6 +253,7 @@ const GEBOUW_KEYS = [
 ];
 const VIDEO_KEYS = ['video_youtube_id'];
 const CONTACT_KEYS = ['contact_address', 'contact_whatsapp', 'contact_hours'];
+const CONTRIBUTION_KEYS = ['contribution_amount', 'contribution_description', 'contribution_subtitle'];
 const FOOTER_KEYS = ['footer_tagline'];
 
 const SPELTAK_DEFAULTS = [
@@ -260,7 +261,7 @@ const SPELTAK_DEFAULTS = [
   { naam: 'Welpen',        leeftijd: '7 – 11 jaar'  },
   { naam: 'Welpen Shanti', leeftijd: '7 – 11 jaar'  },
   { naam: 'Scouts',        leeftijd: '11 – 15 jaar' },
-  { naam: 'Verkenners',    leeftijd: '14 – 17 jaar' },
+  { naam: 'Verkenners',    leeftijd: '11 – 15 jaar' },
   { naam: "Pivo's",        leeftijd: '17 – 21 jaar' },
   { naam: 'Explorers',     leeftijd: '17 – 21 jaar' },
   { naam: 'Stam',          leeftijd: '21+'           },
@@ -448,6 +449,22 @@ function ContactSection({ s, set }: { s: Settings; set: (k: string, v: string) =
       </Field>
       <Field label="Bijeenkomsttijden">
         <TextInput value={s.contact_hours ?? ''} onChange={(v) => set('contact_hours', v)} placeholder="Wekelijks (tijden per speltak)" />
+      </Field>
+    </>
+  );
+}
+
+function ContributionSection({ s, set }: { s: Settings; set: (k: string, v: string) => void }) {
+  return (
+    <>
+      <Field label="Bedrag" hint="bijv. €10">
+        <TextInput value={s.contribution_amount ?? ''} onChange={(v) => set('contribution_amount', v)} placeholder="€10" />
+      </Field>
+      <Field label="Beschrijving">
+        <Textarea value={s.contribution_description ?? ''} onChange={(v) => set('contribution_description', v)} rows={4} placeholder="De contributie bedraagt..." />
+      </Field>
+      <Field label="Subtitel" hint="bijv. 'per maand'">
+        <TextInput value={s.contribution_subtitle ?? ''} onChange={(v) => set('contribution_subtitle', v)} placeholder="per maand" />
       </Field>
     </>
   );
@@ -677,6 +694,12 @@ export default function HomepageEditor() {
       title: 'Contact',
       keys: CONTACT_KEYS,
       children: <ContactSection s={settings} set={set} />,
+    },
+    {
+      id: 'contribution',
+      title: 'Contributie',
+      keys: CONTRIBUTION_KEYS,
+      children: <ContributionSection s={settings} set={set} />,
     },
     {
       id: 'footer',

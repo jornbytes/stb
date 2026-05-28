@@ -877,7 +877,7 @@ function Speltakken({ content }: { content: SiteSettings }) {
     { naam: 'Welpen',         leeftijd: '7 – 11 jaar',  beschrijving: 'Welpen leren samenwerken, knutselen en spelen spannende buitenspellen. Ze groeien als een hecht roedel onder begeleiding van hun leiders.' },
     { naam: 'Welpen Shanti',  leeftijd: '7 – 11 jaar',  beschrijving: 'Welpen Shanti is de meisjestak van de welpen. Samen spelen, knutselen en op avontuur gaan in een hechte vriendinnengroep.' },
     { naam: 'Scouts',         leeftijd: '11 – 15 jaar', beschrijving: 'Scouts leren overleven in de natuur, werken aan badges en nemen deel aan nationale en internationale kampen. Avontuur staat centraal.' },
-    { naam: 'Verkenners',     leeftijd: '14 – 17 jaar', beschrijving: 'Verkenners verkennen de wereld op eigen kracht. Ze plannen hun eigen activiteiten en kampen, en nemen verantwoordelijkheid.' },
+    { naam: 'Verkenners',     leeftijd: '11 – 15 jaar', beschrijving: 'Verkenners verkennen de wereld op eigen kracht. Ze plannen hun eigen activiteiten en kampen, en nemen verantwoordelijkheid.' },
     { naam: "Pivo's",         leeftijd: '17 – 21 jaar', beschrijving: "Pivo's staan op het snijpunt van jong en volwassen. Ze nemen grotere verantwoordelijkheid, organiseren activiteiten en bereiden zich voor op het leiderschap." },
     { naam: 'Explorers',      leeftijd: '17 – 21 jaar', beschrijving: 'Explorers werken aan grote projecten, helpen bij jongere speltakken en bereiden zich voor op een rol als leider.' },
     { naam: 'Stam',           leeftijd: '21+',           beschrijving: 'De Stam vormt het hart van de groep. Volwassen leden ondersteunen de organisatie, begeleiden jongeren en houden de traditie levend.' },
@@ -1314,14 +1314,12 @@ function LidWorden({ onLidWorden }: { onLidWorden: () => void }) {
                 Contributie
               </div>
               <p className="text-white/60 text-sm leading-relaxed max-w-lg">
-                De contributie bedraagt €10,- per maand per lid. Dit dekt kosten voor gebouw,
-                materialen, activiteiten, kampen en verzekering.
-                <span className="text-white/40"> Financieel niet mogelijk? We zoeken altijd naar een oplossing.</span>
+                {content.contribution_description || 'De contributie bedraagt €10,- per maand per lid. Dit dekt kosten voor gebouw, materialen, activiteiten, kampen en verzekering. Financieel niet mogelijk? We zoeken altijd naar een oplossing.'}
               </p>
             </div>
             <div className="text-center flex-shrink-0">
-              <div className="font-display text-scout-red text-6xl font-bold leading-none">€10</div>
-              <div className="text-white/40 text-xs tracking-widest uppercase mt-1">per maand</div>
+              <div className="font-display text-scout-red text-6xl font-bold leading-none">{content.contribution_amount || '€10'}</div>
+              <div className="text-white/40 text-xs tracking-widest uppercase mt-1">{content.contribution_subtitle || 'per maand'}</div>
             </div>
           </div>
         </div>

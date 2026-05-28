@@ -28,7 +28,7 @@ INSERT INTO site_settings (key, value) VALUES
   ('speltak_2_href',        ''),
 
   ('speltak_3_naam',        'Verkenners'),
-  ('speltak_3_leeftijd',    '14 – 17 jaar'),
+  ('speltak_3_leeftijd',    '11 – 15 jaar'),
   ('speltak_3_beschrijving','Verkenners verkennen de wereld op eigen kracht. Ze plannen hun eigen activiteiten en kampen, en nemen verantwoordelijkheid.'),
   ('speltak_3_href',        ''),
 
