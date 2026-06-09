@@ -1254,7 +1254,7 @@ function Gebouw({ content }: { content: SiteSettings }) {
 
 const stapTilts = [-1.5, 0, 1.5];
 
-function LidWorden({ onLidWorden }: { onLidWorden: () => void }) {
+function LidWorden({ onLidWorden, content }: { onLidWorden: () => void; content: SiteSettings }) {
   return (
     <section id="lid-worden" className="relative bg-scout-cream texture-paper overflow-hidden py-24 px-6">
       {/* Big number watermark */}
@@ -1917,7 +1917,7 @@ export default function App() {
       <DividerCreamToDark />
       <Gebouw content={content} />
       <DividerDarkToCream />
-      <LidWorden onLidWorden={() => setShowPopup(true)} />
+      <LidWorden onLidWorden={() => setShowPopup(true)} content={content} />
       <DividerCreamToDark />
       <Nieuws />
       <DividerDarkToCream />
