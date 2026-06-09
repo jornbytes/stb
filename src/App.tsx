@@ -91,6 +91,17 @@ const speltakken = [
 
 // ─── Lid Worden Popup ─────────────────────────────────────────────────────────
 
+const HOE_GEVONDEN_OPTIONS = [
+  'Reuniefeest',
+  'Vriendjes',
+  'Opendag',
+  'Koningsdag',
+  'Folderactie',
+  'Haunted house',
+  'Spandoeken om Oldenzaal',
+  'Anders, namelijk',
+];
+
 function LidWordenPopup({ onClose, content }: { onClose: () => void; content: SiteSettings }) {
   const [form, setForm] = useState({
     naam: '',
@@ -98,6 +109,7 @@ function LidWordenPopup({ onClose, content }: { onClose: () => void; content: Si
     telefoon: '',
     geboortedatum: '',
     speltak: '',
+    hoe_gevonden: '',
     opmerking: '',
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -128,6 +140,7 @@ function LidWordenPopup({ onClose, content }: { onClose: () => void; content: Si
         telefoon: form.telefoon,
         geboortedatum: form.geboortedatum || null,
         speltak: form.speltak,
+        hoe_gevonden: form.hoe_gevonden,
         opmerking: form.opmerking,
       },
     ]);
@@ -149,6 +162,7 @@ function LidWordenPopup({ onClose, content }: { onClose: () => void; content: Si
             telefoon: form.telefoon,
             geboortedatum: form.geboortedatum || '',
             speltak: form.speltak,
+            hoe_gevonden: form.hoe_gevonden,
             opmerking: form.opmerking,
           },
         }),
@@ -282,6 +296,24 @@ function LidWordenPopup({ onClose, content }: { onClose: () => void; content: Si
                   if (!naam) return null;
                   return <option key={i} value={naam}>{naam}{leeftijd ? ` (${leeftijd})` : ''}</option>;
                 })}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-white/50 text-xs tracking-widest uppercase block mb-2">
+                Hoe heb je ons gevonden? *
+              </label>
+              <select
+                name="hoe_gevonden"
+                value={form.hoe_gevonden}
+                onChange={handleChange}
+                required
+                className={inputCls}
+              >
+                <option value="">Selecteer een optie...</option>
+                {HOE_GEVONDEN_OPTIONS.map(opt => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
               </select>
             </div>
 

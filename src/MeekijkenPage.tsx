@@ -3,7 +3,7 @@ import { supabase } from './lib/supabase';
 import { renderBlocks } from './admin/RichEditor';
 import {
   ArrowLeft, ArrowRight, Menu, X, CheckCircle, AlertCircle,
-  User, Mail, Phone, MessageSquare, Calendar,
+  User, Mail, Phone, MessageSquare, Calendar, ChevronDown,
 } from 'lucide-react';
 import { NavIcon, hasNavIcon } from './lib/navIcon';
 import AdminTopbar from './admin/AdminTopbar';
@@ -222,11 +222,23 @@ function Footer() {
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error';
 
+const HOE_GEVONDEN_OPTIONS = [
+  'Reuniefeest',
+  'Vriendjes',
+  'Opendag',
+  'Koningsdag',
+  'Folderactie',
+  'Haunted house',
+  'Spandoeken om Oldenzaal',
+  'Anders, namelijk',
+];
+
 function AanmeldFormulier({ fs }: { fs: FormSettings }) {
   const [naam, setNaam] = useState('');
   const [geboortedatum, setGeboortedatum] = useState('');
   const [email, setEmail] = useState('');
   const [telefoon, setTelefoon] = useState('');
+  const [hoeGevonden, setHoeGevonden] = useState('');
   const [opmerking, setOpmerking] = useState('');
   const [state, setState] = useState<FormState>('idle');
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -238,6 +250,7 @@ function AanmeldFormulier({ fs }: { fs: FormSettings }) {
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       e.email = 'Voer een geldig e-mailadres in';
     if (!telefoon.trim()) e.telefoon = 'Telefoonnummer is verplicht';
+    if (!hoeGevonden.trim()) e.hoeGevonden = 'Selectie is verplicht';
     return e;
   }
 
@@ -252,6 +265,7 @@ function AanmeldFormulier({ fs }: { fs: FormSettings }) {
       geboortedatum: geboortedatum || null,
       email: email.trim(),
       telefoon: telefoon.trim(),
+      hoe_gevonden: hoeGevonden.trim(),
       opmerking: opmerking.trim(),
     });
     if (error) { setState('error'); return; }
@@ -271,6 +285,7 @@ function AanmeldFormulier({ fs }: { fs: FormSettings }) {
             email: email.trim(),
             telefoon: telefoon.trim(),
             geboortedatum: geboortedatum || '',
+            hoe_gevonden: hoeGevonden.trim(),
             opmerking: opmerking.trim(),
           },
         }),
@@ -384,6 +399,27 @@ function AanmeldFormulier({ fs }: { fs: FormSettings }) {
             />
           </div>
           {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
+        </div>
+
+        {/* Hoe heb je ons gevonden? */}
+        <div className="sm:col-span-2">
+          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-widest mb-1.5">
+            Hoe heb je ons gevonden? <span className="text-scout-red">*</span>
+          </label>
+          <div className="relative">
+            <select
+              value={hoeGevonden}
+              onChange={e => { setHoeGevonden(e.target.value); setErrors(p => ({ ...p, hoeGevonden: '' })); }}
+              className={inputCls('hoeGevonden') + ' appearance-none pl-4 pr-10'}
+            >
+              <option value="">Selecteer een optie...</option>
+              {HOE_GEVONDEN_OPTIONS.map(opt => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          </div>
+          {errors.hoeGevonden && <p className="mt-1 text-xs text-red-500">{errors.hoeGevonden}</p>}
         </div>
 
         {/* Opmerking */}
